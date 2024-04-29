@@ -31,15 +31,17 @@ function App(): React.JSX.Element {
   
 
   return (
- <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name='LoginScreen' component={LoginScreen} />
-          <Stack.Screen name='ResetPassScreen' component={ResetPassScreen} />
-          <Stack.Screen name='RegisterScreen' component={RegisterScreen} />
-          <Stack.Screen name='HomeScreen' component={HomeScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
-
+//  <NavigationContainer>
+//       <Stack.Navigator screenOptions={{ headerShown: false }}>
+//           <Stack.Screen name='LoginScreen' component={LoginScreen} />
+//           <Stack.Screen name='ResetPassScreen' component={ResetPassScreen} />
+//           <Stack.Screen name='RegisterScreen' component={RegisterScreen} />
+//           <Stack.Screen name='HomeScreen' component={HomeScreen} />
+//       </Stack.Navigator>
+//     </NavigationContainer>
+   <SafeAreaView>
+    <Text>Hello</Text>
+   </SafeAreaView> 
   );
 }
 

@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const EngineerScreen = () => {
+function EngineerScreen(): React.JSX.Element{
   return (
     <View>
       <Text>EngineerScreen</Text>

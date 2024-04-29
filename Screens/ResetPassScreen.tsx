@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const ResetPassScreen = () => {
+function ResetPassScreen() : React.JSX.Element {
   return (
     <View>
       <Text>ResetPassScreen</Text>

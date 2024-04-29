@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const RegisterScreen = () => {
+function RegisterScreen(): React.JSX.Element{
   return (
     <View>
       <Text>RegisterScreen</Text>
