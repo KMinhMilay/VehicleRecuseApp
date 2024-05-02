@@ -2,52 +2,35 @@ import 'react-native-gesture-handler';
 import React, {Component} from 'react';
 import type {PropsWithChildren} from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
-  useColorScheme,
   View,
   KeyboardAvoidingView,
   Image,
-  ImageBackground,
-  TextInput,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
 
-function LoginScreen({navigation}: any): React.JSX.Element {
+
+function WelcomeScreen({navigation}: any): React.JSX.Element{
   //Navigation
   const Login = () => {
-    navigation.navigate('HomeScreen');
+    navigation.navigate('LoginScreen');
   };
   const Register = () => {
     navigation.navigate('RegisterScreen');
   };
-  const ResetPass = () => {
-    navigation.push('ResetPassScreen');
-  };
+
   //UI
   return (
     <KeyboardAvoidingView style={{flex: 1}}>
       <View style={styles.flex_5}>
         <Image
-          style={styles.panel_img_1}
+          style={styles.panel_img}
           source={require('../Assets/Asset/Background.png')}></Image>
-        <Text style={styles.header}>VEHICLE RECUSE</Text>
+        <Text style={styles.title}>VEHICLE RECUSE</Text>
+        <Text style={styles.subtitle}>Ứng dụng cứu hộ xe nhanh</Text>
       </View>
-      <View style={{flex: 1, backgroundColor: 'gray'}}>
+      <View style={[styles.flex_center_1,{flexDirection:'row'}]}>
         <TouchableOpacity style={styles.btnLogin} onPress={Login}>
           <Text
             style={{
@@ -58,6 +41,9 @@ function LoginScreen({navigation}: any): React.JSX.Element {
             ĐĂNG NHẬP
           </Text>
         </TouchableOpacity>
+        <Text style={{marginHorizontal:5}}>
+          hoặc
+        </Text>
         <TouchableOpacity style={styles.btnRegister} onPress={Register}>
           <Text
             style={{
@@ -65,7 +51,7 @@ function LoginScreen({navigation}: any): React.JSX.Element {
               fontSize: 18,
               fontWeight: 'bold',
             }}>
-            ĐĂNG NHẬP
+            TẠO TÀI KHOẢN
           </Text>
         </TouchableOpacity>
       </View>
@@ -73,23 +59,24 @@ function LoginScreen({navigation}: any): React.JSX.Element {
   );
 }
 
-export default LoginScreen;
+export default WelcomeScreen;
 
 const styles = StyleSheet.create({
-  panel_img_1: {
+  panel_img: {
     flex: 1,
-    paddingBottom: 180,
-    width: '100%',
+
   },
-  header: {
+  title: {
     color: 'black',
     fontWeight: 'bold',
     fontSize: 38,
     backgroundColor: 'white',
-    marginBottom: 20,
-    textShadowColor: 'white',
-    textShadowOffset: {width: 1, height: 3},
-    textShadowRadius: 25,
+    
+  },
+  subtitle: {
+    color: 'black',
+    fontSize: 18,
+    backgroundColor: 'white',
   },
   flex_center_05: {
     flex: 0.5,
@@ -98,7 +85,7 @@ const styles = StyleSheet.create({
   },
   flex_center_1: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
   },
   flex_center_3: {
@@ -119,12 +106,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'white',
   },
-  textInput: {
-    height: 40,
-    borderColor: '#000000',
-    borderBottomWidth: 1,
-    marginBottom: 30,
-  },
   btnLogin: {
     borderRadius: 15,
     width: 120,
@@ -132,8 +113,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 120,
-    marginTop: 10,
     elevation: 10,
   },
   btnRegister: {
@@ -143,8 +122,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 120,
-    marginTop: 10,
     elevation: 10,
   },
 });
