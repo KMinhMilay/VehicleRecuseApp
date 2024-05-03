@@ -7,7 +7,6 @@ import {
   } from 'react-native';
   import React, {useState} from 'react';
   import {View, TextField, Text, Button} from 'react-native-ui-lib';
-  import RegisterScreen from './RegisterScreen';
  
   function LoginScreen({navigation}: any): React.JSX.Element {
     const [hide, setHide] = useState(true);
@@ -26,7 +25,7 @@ import {
     return (
       <KeyboardAvoidingView style={{flex: 1}}>
         <View style={styles.flex_img_back}>
-            <TouchableOpacity onPress={ResetPass}>
+            <TouchableOpacity onPress={BackTo}>
           <Image
             style={styles.panel_img}
             source={require('../Assets/Asset/icons8-back-48.png')}
@@ -45,6 +44,7 @@ import {
             onChangeText={() => {
               console.log('Text have changed');
             }}
+            // value={}
             enableErrors
             validate={['required', 'email', (value: string) => value.length > 6]}
             validationMessage={[
@@ -68,6 +68,7 @@ import {
               onChangeText={() => {
                 console.log('Text have changed');
               }}
+              // value={}
               enableErrors
               validate={['required', (value: string) => value.length > 6]}
               validationMessage={['Field is required', 'Password is too short']}
@@ -110,7 +111,8 @@ import {
   
   const styles = StyleSheet.create({
     panel_img: {
-      flex: 1,
+      width:48,
+      height:48
     },
     flex_img_back: {
       flex: 1,
@@ -172,12 +174,10 @@ import {
       color: 'black',
       fontWeight: 'bold',
       fontSize: 36,
-      backgroundColor: 'white',
     },
     subtitle: {
       color: 'black',
       fontSize: 18,
-      backgroundColor: 'white',
     },
     btnLogin: {
       borderRadius: 15,

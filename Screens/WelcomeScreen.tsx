@@ -41,7 +41,7 @@ function WelcomeScreen({navigation}: any): React.JSX.Element{
             ĐĂNG NHẬP
           </Text>
         </TouchableOpacity>
-        <Text style={{marginHorizontal:5}}>
+        <Text>
           hoặc
         </Text>
         <TouchableOpacity style={styles.btnRegister} onPress={Register}>
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   },
   btnRegister: {
     borderRadius: 15,
-    width: 120,
+    width: 140,
     height: 45,
     backgroundColor: 'white',
     alignItems: 'center',
