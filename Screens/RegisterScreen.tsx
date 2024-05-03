@@ -36,7 +36,7 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
     setHide(!hide);
   }
   const Register = () => {
-    navigation.navigate('HomeScreen');
+    navigation.goBack();
   };
   const BackTo = () => {
     navigation.goBack();
@@ -330,6 +330,7 @@ const styles = StyleSheet.create({
     flex: 16,
     justifyContent: 'flex-start',
     alignItems: 'center',
+    marginTop:18
   },
   title: {
     color: 'black',
