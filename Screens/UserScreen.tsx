@@ -28,18 +28,15 @@ function UserInfoScreen({navigation}: any): React.JSX.Element {
     new Date().toLocaleDateString(),
   );
   const [show, setShow] = React.useState(false);
-  function Check() {
-    setCheck(!check);
-    return true;
-  }
+
   function Hide() {
     setHide(!hide);
   }
-  const Register = () => {
-    navigation.goBack();
+  const Update = () => {
+    Alert.alert('Cập nhật');
   };
-  const BackTo = () => {
-    navigation.goBack();
+  const Logout = () => {
+    navigation.popToTop();
   };
   const onChangeDate = ({event, selectedDate}: any) => {
     const curDate = selectedDate || datetime;
@@ -267,7 +264,7 @@ function UserInfoScreen({navigation}: any): React.JSX.Element {
           </TouchableOpacity>
         </View>
         <View style={[styles.flex_top_1,{flexDirection:'row',justifyContent:'space-between'}]}>
-          <TouchableOpacity style={styles.btnUpdate} onPress={Register}>
+          <TouchableOpacity style={styles.btnUpdate} onPress={Update}>
             <Text
               style={{
                 color: 'white',
@@ -277,7 +274,7 @@ function UserInfoScreen({navigation}: any): React.JSX.Element {
               CẬP NHẬT
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.btnLogout} onPress={Register}>
+          <TouchableOpacity style={styles.btnLogout} onPress={Logout}>
             <Text
               style={{
                 color: 'black',
