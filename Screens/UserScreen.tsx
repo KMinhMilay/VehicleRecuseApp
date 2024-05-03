@@ -58,11 +58,9 @@ function UserInfoScreen({navigation}: any): React.JSX.Element {
   return (
     <KeyboardAvoidingView style={{flex: 1}}>
       <View style={styles.flex_img_back}>
+        <Text style={{fontSize:32,color:'black',textAlign:'center'}}>THÔNG TIN CỦA BẠN</Text>
+      </View>
 
-      </View>
-      <View style={styles.flex_center_1}>
-        <Text style={styles.title}>THÔNG TIN CỦA BẠN</Text>
-      </View>
       <View style={styles.containerInput}>
         {hideContainer && (
           <View
@@ -310,10 +308,10 @@ const styles = StyleSheet.create({
     height: 48,
   },
   flex_img_back: {
-    flex: 1.5,
+    flex: 2,
     justifyContent: 'center',
-    alignItems: 'flex-start',
-    paddingLeft: 10,
+    alignItems: 'center',
+    borderBottomWidth:0.5
   },
   flex_center_1: {
     flex: 1,
