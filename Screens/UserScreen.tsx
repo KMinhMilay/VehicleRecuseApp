@@ -19,7 +19,7 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
 
-function RegisterScreen({navigation}: any): React.JSX.Element {
+function UserInfoScreen({navigation}: any): React.JSX.Element {
   const [check, setCheck] = useState(false);
   const [hide, setHide] = useState(false);
   const [hideContainer, setHideContainer] = useState(true);
@@ -61,15 +61,10 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
   return (
     <KeyboardAvoidingView style={{flex: 1}}>
       <View style={styles.flex_img_back}>
-        <TouchableOpacity onPress={BackTo}>
-          <Image
-            style={styles.panel_img}
-            source={require('../Assets/Asset/icons8-back-48.png')}
-          />
-        </TouchableOpacity>
+
       </View>
       <View style={styles.flex_center_1}>
-        <Text style={styles.title}>ĐĂNG KÍ TÀI KHOẢN MỚI </Text>
+        <Text style={styles.title}>THÔNG TIN CỦA BẠN</Text>
       </View>
       <View style={styles.containerInput}>
         {hideContainer && (
@@ -87,7 +82,7 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
               onChangeText={() => {
                 console.log('Text have changed');
               }}
-              // value={}
+              value={'Nguyen Van A'}
               enableErrors
               validate={['required', (value: string) => value.length > 8]}
               validationMessage={[
@@ -111,13 +106,14 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
               alignItems: 'center',
             }}>
             <TextField
-              placeholder={'Tên đăng nhập'}
+              placeholder={'Tên đăng nhập ( Không thể sửa )'}
               floatingPlaceholder
               label={'Tên đăng nhập'}
               onChangeText={() => {
                 console.log('Text have changed');
               }}
-              // value={}
+              readOnly={true}
+              value={'NguyenVanA'}
               enableErrors
               validate={['required', (value: string) => value.length > 6]}
               validationMessage={[
@@ -128,7 +124,7 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
               maxLength={30}
               floatingPlaceholderStyle={styles.floatingHolderStyle}
               containerStyle={styles.containerHolderStyle}
-              fieldStyle={styles.fieldStyle}
+              fieldStyle={[styles.fieldStyle,{backgroundColor:'rgb(206,206,206)'}]}
               validateOnBlur
             />
           </View>
@@ -148,7 +144,7 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
               onChangeText={() => {
                 console.log('Text have changed');
               }}
-              // value={}
+              value={'0127398134'}
               enableErrors
               validate={[
                 'required',
@@ -208,7 +204,7 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
           }}
           onPressIn={() => setHideContainer(false)}
           onEndEditing={() => setHideContainer(true)}
-          // value={}
+          value={'NVA@gmail.com'}
           enableErrors
           validate={['required', 'email', (value: string) => value.length >= 8]}
           validationMessage={[
@@ -230,9 +226,9 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
             alignItems: 'center',
           }}>
           <TextField
-            placeholder={'Mật khẩu'}
+            placeholder={'Nhập lại mật khẩu mới'}
             floatingPlaceholder
-            label={'Mật khẩu'}
+            label={'Mật khẩu mới'}
             onChangeText={() => {
               console.log('Text have changed');
             }}
@@ -270,23 +266,27 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
               style={{height: 30, width: 30}}></Image>
           </TouchableOpacity>
         </View>
-        <View style={styles.flex_top_1}>
-          <TouchableOpacity style={styles.btnRegister} onPress={Register}>
+        <View style={[styles.flex_top_1,{flexDirection:'row',justifyContent:'space-between'}]}>
+          <TouchableOpacity style={styles.btnUpdate} onPress={Register}>
             <Text
               style={{
                 color: 'white',
                 fontSize: 18,
                 fontWeight: 'bold',
               }}>
-              TẠO TÀI KHOẢN
+              CẬP NHẬT
             </Text>
           </TouchableOpacity>
-          <Checkbox
-            color="black"
-            value={check}
-            onValueChange={Check}
-            label="Bạn đồng ý và thỏa thuận với các điều khoản và điều kiện"
-          />
+          <TouchableOpacity style={styles.btnLogout} onPress={Register}>
+            <Text
+              style={{
+                color: 'black',
+                fontSize: 18,
+                fontWeight: 'bold',
+              }}>
+              ĐĂNG XUẤT
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -305,7 +305,7 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
   );
 }
 
-export default RegisterScreen;
+export default UserInfoScreen;
 
 const styles = StyleSheet.create({
   panel_img: {
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     backgroundColor: 'white',
   },
-  btnRegister: {
+  btnUpdate: {
     borderRadius: 15,
     width: 140,
     height: 45,
@@ -386,5 +386,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     elevation: 10,
     marginVertical: 16,
+    marginHorizontal:12
+  },
+  btnLogout: {
+    borderRadius: 15,
+    width: 140,
+    height: 45,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 10,
+    marginVertical: 16,
+    marginHorizontal:12
   },
 });
