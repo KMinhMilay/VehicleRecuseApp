@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-function EngineerScreen(): React.JSX.Element{
+function EngineerScreen({navigation}: any): React.JSX.Element{
   return (
     <View>
       <Text>EngineerScreen</Text>

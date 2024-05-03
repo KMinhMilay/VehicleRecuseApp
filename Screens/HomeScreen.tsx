@@ -3,7 +3,7 @@ import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 const Tab = createBottomTabNavigator();
 import Tabs from '../Tabs';
-function HomeScreen() : React.JSX.Element{
+function HomeScreen({navigation}: any) : React.JSX.Element{
   return (
     <Tabs/>
   )

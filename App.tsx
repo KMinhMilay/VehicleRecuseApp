@@ -27,18 +27,20 @@ import ResetPassScreen from './Screens/ResetPassScreen';
 import RegisterScreen from './Screens/RegisterScreen';
 import HomeScreen from './Screens/HomeScreen';
 import WelcomeScreen from './Screens/WelcomeScreen';
+import AddTripScreen from './Screens/AddTripScreen';
 const Stack = createStackNavigator();
 function App(): React.JSX.Element {
   
 
   return (
- <NavigationContainer>
+  <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name='WelcomeScreen' component={WelcomeScreen} />          
           <Stack.Screen name='LoginScreen' component={LoginScreen} />   
           <Stack.Screen name='HomeScreen' component={HomeScreen} />
           <Stack.Screen name='ResetPassScreen' component={ResetPassScreen} />
           <Stack.Screen name='RegisterScreen' component={RegisterScreen} />
+          <Stack.Screen name='AddTripScreen' component={AddTripScreen} />
       </Stack.Navigator>
     </NavigationContainer>
 
