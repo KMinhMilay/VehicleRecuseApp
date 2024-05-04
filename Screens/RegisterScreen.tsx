@@ -20,6 +20,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
 
 function RegisterScreen({navigation}: any): React.JSX.Element {
+  const [fullname, setFullname] = useState('');
   const [check, setCheck] = useState(false);
   const [hide, setHide] = useState(false);
   const [hideContainer, setHideContainer] = useState(true);
@@ -84,10 +85,8 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
               placeholder={'Họ và tên bạn'}
               floatingPlaceholder
               label={'Họ và tên'}
-              onChangeText={() => {
-                console.log('Text have changed');
-              }}
-              // value={}
+              onChangeText={setFullname}
+              value={fullname}
               enableErrors
               validate={['required', (value: string) => value.length > 8]}
               validationMessage={[

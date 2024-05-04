@@ -1,53 +1,238 @@
-import { FlatList, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
-import {  TextField } from 'react-native-ui-lib';
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {useState} from 'react';
+import {Colors, Drawer, TextField} from 'react-native-ui-lib';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 const DATA = [
   {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    title: 'First Item',
+    id: '1',
+    vehicle: 'Xe Ô Tô',
+    status: 'Đang đợi thợ',
+    xLocation: '123',
+    yLocation: '101',
+    day: '10/4/2024',
+    note: 'ádfafafaf',
+    id_engineer:'1a12',
+    bookmark: false,
   },
   {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Second Item',
+    id: '2',
+    vehicle: 'Xe tải',
+    status: 'Đã hoàn thành',
+    xLocation: '123',
+    yLocation: '1211',
+    day: '10/4/2024',
+    note: 'ádfafafaf',
+    id_engineer:'2a12',
+    bookmark: true,
   },
   {
-    id: '5814a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Third Item',
+    id: '3',
+    vehicle: 'Xe Đạp',
+    status: 'Hủy',
+    xLocation: '123',
+    yLocation: '101',
+    day: '10/4/2024',
+    note: 'ádfafafaf',
+    id_engineer:'null',
+    bookmark: true,
   },
   {
-    id: '3ac683fc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Second Item',
+    id: '4',
+    vehicle: 'Xe máy',
+    status: 'Đang thực hiện',
+    xLocation: '123',
+    yLocation: '101',
+    day: '10/4/2024',
+    note: 'ádfafafaf',
+    id_engineer:'2a12',
+    bookmark: false,
   },
   {
-    id: '58623a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Third Item',
-  },
-  {
-    id: '3a38afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Second Item',
-  },
-  {
-    id: '2694a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Third Item',
+    id: '5',
+    vehicle: 'Xe Ô Tô',
+    status: 'Đã hoàn thành',
+    xLocation: '123',
+    yLocation: '101',
+    day: '10/4/2024',
+    note: 'ádfafafaf',
+    id_engineer:'2a12',
+    bookmark: false,
   },
 ];
-type ItemProps = {title: string};
-
-const Item = ({title}: ItemProps) => (
-  <View style={styles.item}>
-    <Text style={styles.title}>{title}</Text>
-  </View>
+type ItemProps = {
+  id: string;
+  vehicle: string;
+  status: string;
+  xLocation: string;
+  yLocation: string;
+  day: string;
+  note: string;
+  bookmark: boolean;
+  id_engineer: string;
+  onPressBookmark: () => void;
+  onPressRead:() => void;
+};
+const Item = ({
+  id,
+  vehicle,
+  status,
+  xLocation,
+  yLocation,
+  day,
+  note,
+  bookmark,
+  id_engineer,
+  onPressBookmark,
+  onPressRead
+}: ItemProps) => (
+  <Drawer
+    rightItems={[
+      {
+        text: 'Ưa thích',
+        background: Colors.yellow10,
+        onPress: onPressBookmark,
+      },
+      {
+        text: 'Chi tiết',
+        background: Colors.black,
+        onPress: onPressRead,
+      }
+    ]}
+    >
+    <TouchableOpacity
+      style={{
+        flexDirection: 'row',
+        flex: 1,
+        marginVertical: 8,
+        marginHorizontal: 16,
+        borderRadius: 12,
+        backgroundColor: 'white',
+        height: 96,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+      }}>
+      <View
+        style={{
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flex: 4,
+        }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <View style={{borderRightWidth: 0.5, width: 64, height: 32,              justifyContent:'center',
+              alignItems:'center',}}>
+            <Text style={{fontSize: 16, textAlign: 'center',fontWeight:'bold'}}>ID: {id} </Text>
+          </View>
+          {/* <View style={{borderRightWidth: 0.5, width: 64, height: 32,              justifyContent:'center',
+              alignItems:'center',}}>
+            <Text style={{fontSize: 16, textAlign: 'center',fontWeight:'bold'}}>ID Tài xế: {id_engineer} </Text>
+          </View> */}
+          <View
+            style={{
+              borderRightWidth: 0.5,
+              justifyContent:'center',
+              alignItems:'center',
+              width: 64,
+              height: 32,
+            }}>
+            <Text style={{fontSize: 16, textAlign: 'center'}}>{vehicle}</Text>
+          </View>
+          <View style={{ width: 128,justifyContent:'center',alignItems:'center',}}>
+            <Text style={{fontSize: 16, textAlign: 'center',fontWeight:'bold'}}>
+              {status}
+            </Text>
+          </View>
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}>
+          <View style={{borderRightWidth: 0.5, width: 96,              justifyContent:'center',
+              alignItems:'center',}}>
+            <Text style={{fontSize: 16, textAlign: 'center'}}>Ngày: {day}</Text>
+          </View>
+          <View style={{borderRightWidth: 0.5, width: 96,              justifyContent:'center',
+              alignItems:'center',}}>
+            <Text style={{fontSize: 16, textAlign: 'center'}}>
+              X: {xLocation}
+            </Text>
+          </View>
+          <View style={{width: 96,              justifyContent:'center',
+              alignItems:'center',}}>
+            <Text style={{fontSize: 16, textAlign: 'center'}}>
+              Y: {yLocation}
+            </Text>
+          </View>
+          {/* <View style={{ width: 64, height: 32,justifyContent:'center',alignItems:'center',}}>
+            <Text style={{fontSize: 16, textAlign: 'center'}}>ID Tài xế: {id_engineer} </Text>
+          </View>  */}
+        </View>
+      </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+          flex: 1,
+          borderLeftWidth: 0.5,
+        }}>
+        <TouchableOpacity
+          style={{
+            height: 32,
+            width: 32,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }} onPress={onPressBookmark}>
+          <Image
+            source={
+              bookmark
+                ? require('../Assets/Asset/icons8-bookmark-48.png')
+                : require('../Assets/Asset/icons8-unbookmark-48.png')
+            }
+            style={{height: 32, width: 32}}></Image>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            height: 32,
+            width: 32,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }} onPress={onPressRead}>
+          <Image
+            source={require('../Assets/Asset/icons8-info-48.png')}
+            style={{height: 32, width: 32}}></Image>
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
+  </Drawer>
 );
 
-
-function TripList() : React.JSX.Element{
+function TripList(): React.JSX.Element {
   const [datetime, setDateTime] = React.useState(new Date());
   const [textDate, setTextDate] = React.useState(
     new Date().toLocaleDateString(),
   );
+  const [bookmark,setBookmark] = useState(true);
   const [show, setShow] = React.useState(false);
+  const clickBookmark = () => {
+    setBookmark(!bookmark);
+  }
   const onChangeDate = ({event, selectedDate}: any) => {
     const curDate = selectedDate || datetime;
 
@@ -66,17 +251,19 @@ function TripList() : React.JSX.Element{
     setShow(true);
   };
   return (
-<View style={styles.container}>
-      <View style={[styles.flex_img_back,{borderBottomWidth:0.5}]}>
-        <Text style={{fontSize:32,color:'black',textAlign:'center'}}>DANH SÁCH CÁC CHUYẾN</Text>
+    <View style={styles.container}>
+      <View style={[styles.flex_img_back, {borderBottomWidth: 0.5}]}>
+        <Text style={{fontSize: 32, color: 'black', textAlign: 'center'}}>
+          DANH SÁCH CÁC CHUYẾN
+        </Text>
       </View>
-      <View style={[styles.flex_img_back]}>
-      <View
+      <View style={[styles.flex_img_back,{paddingTop:16}]}>
+        <View
           style={{
             flexDirection: 'row',
             justifyContent: 'center',
             alignItems: 'center',
-            paddingTop:16
+            paddingTop: 16,
           }}>
           <TextField
             placeholder={'Tìm theo Ngày-tháng-năm:'}
@@ -102,38 +289,109 @@ function TripList() : React.JSX.Element{
               style={{height: 30, width: 30, marginLeft: -42}}></Image>
           </TouchableOpacity>
         </View>
-      </View>
-      <View style={[styles.flex_top_1,{flexDirection:'row'}]}>
-          <TouchableOpacity style={styles.btnFavorites} >
-            <Text
-              style={{
-                color: 'white',
-                fontSize: 16,
-                fontWeight: 'bold',
-                textAlign:'center'
-              }}>
-              SẮP XẾP THEO NGÀY/THÁNG/NĂM
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.btnCurrentLocation} >
+        <View           
+        style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            
+          }}>
+            <Text style={{fontSize:16,fontWeight:'bold',color:'black'}}>Phương tiện: </Text>
+          <TouchableOpacity style={{marginHorizontal:2,borderWidth:1,borderRadius:10,width:64,height:32,justifyContent:'center',alignItems:'center'}}>
             <Text
               style={{
                 color: 'black',
                 fontSize: 16,
                 fontWeight: 'bold',
-                textAlign:'center'
+                textAlign: 'center',
               }}>
-              SẮP XẾP THEO TÊN PHƯƠNG TIỆN
+              XE MÁY
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{marginHorizontal:2,borderWidth:1,borderRadius:10,width:64,height:32,justifyContent:'center',alignItems:'center'}}>
+            <Text
+              style={{
+                color: 'black',
+                fontSize: 16,
+                fontWeight: 'bold',
+                textAlign: 'center',
+              }}>
+              XE Ô TÔ
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{marginHorizontal:2,borderWidth:1,borderRadius:10,width:64,height:32,justifyContent:'center',alignItems:'center'}}>
+            <Text
+              style={{
+                color: 'black',
+                fontSize: 16,
+                fontWeight: 'bold',
+                textAlign: 'center',
+              }}>
+              XE TẢI
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{marginHorizontal:2,borderWidth:1,borderRadius:10,width:64,height:32,justifyContent:'center',alignItems:'center'}}>
+            <Text
+              style={{
+                color: 'black',
+                fontSize: 16,
+                fontWeight: 'bold',
+                textAlign: 'center',
+              }}>
+              XE ĐẠP
             </Text>
           </TouchableOpacity>
         </View>
-        <View style={{flex: 1,paddingTop:36,}}>
-          <FlatList
-            data={DATA}
-            renderItem={({item}) => <Item title={item.title} />}
-            keyExtractor={item => item.id}
-          />
-        </View>
+      </View>
+      
+      <View style={[styles.flex_top_1, {flexDirection: 'row',paddingTop:24}]}>
+        <TouchableOpacity style={styles.btnFavorites}>
+          <Text
+            style={{
+              color: 'white',
+              fontSize: 16,
+              fontWeight: 'bold',
+              textAlign: 'center',
+            }}>
+            SẮP XẾP THEO NGÀY/THÁNG/NĂM
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.btnCurrentLocation}>
+          <Text
+            style={{
+              color: 'black',
+              fontSize: 16,
+              fontWeight: 'bold',
+              textAlign: 'center',
+            }}>
+            SẮP XẾP THEO TÌNH TRẠNG
+          </Text>
+        </TouchableOpacity>
+      </View>
+      <View style={{flex: 1, paddingTop: 36}}>
+        {/* type ItemProps = {id: string, vehicle: string, status: string, xLocation:string,yLocation: string,day: string,note:string,bookmark: boolean}; */}
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          data={DATA}
+          renderItem={({item}) => (
+            <Item
+              id={item.id}
+              vehicle={item.vehicle}
+              status={item.status}
+              xLocation={item.xLocation}
+              yLocation={item.yLocation}
+              day={item.day}
+              note={item.note}
+              bookmark={item.bookmark}
+              id_engineer={item.id_engineer}
+              onPressBookmark={()=>console.log("Đã thêm bookmark")}
+              onPressRead={()=>console.log("Details")}
+            />
+          )}
+          keyExtractor={item => item.id}
+        />
+      </View>
 
       {show && (
         <View>
@@ -147,29 +405,27 @@ function TripList() : React.JSX.Element{
         </View>
       )}
     </View>
-  )
+  );
 }
 
-export default TripList
+export default TripList;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    
   },
-  containerInput:{
-    flex:1,
-    justifyContent:'center',
-    alignItems:'center',
-    marginTop:8
+  containerInput: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
   },
   mapView: {
     flex: 0.25,
-    
   },
   scrollView: {
     flex: 8,
-    paddingTop:36,
+    paddingTop: 36,
   },
   text: {
     fontSize: 42,
@@ -180,8 +436,8 @@ const styles = StyleSheet.create({
   },
   flex_img_back: {
     flex: 0.25,
-    justifyContent:'center',
-    alignItems:'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   floatingHolderStyle: {
     fontWeight: 'bold',
@@ -201,9 +457,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   flex_top_1: {
-    flex:0.2,
+    flex: 0.2,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: -32,
   },
   btnFavorites: {
     borderRadius: 15,
@@ -213,8 +470,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 10,
-    marginHorizontal:16,
-    textAlign:'center'
+    marginHorizontal: 16,
+    textAlign: 'center',
   },
   btnCurrentLocation: {
     borderRadius: 15,
@@ -224,9 +481,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 10,
-    marginHorizontal:16,
-    textAlign:'center',
-    borderWidth:1,
+    marginHorizontal: 16,
+    textAlign: 'center',
+    borderWidth: 1,
   },
   btnAccpect: {
     borderRadius: 15,
@@ -236,9 +493,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 10,
-    marginHorizontal:16,
-    textAlign:'center',
-    borderWidth:1,
+    marginHorizontal: 16,
+    textAlign: 'center',
+    borderWidth: 1,
   },
   btnAddFav: {
     borderRadius: 15,
@@ -248,17 +505,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 10,
-    marginHorizontal:16,
-    textAlign:'center',
-    borderWidth:1,
+    marginHorizontal: 16,
+    textAlign: 'center',
+    borderWidth: 1,
   },
   item: {
     backgroundColor: '#f9c2ff',
     padding: 20,
     marginVertical: 8,
     marginHorizontal: 16,
+    borderRadius: 10,
   },
-  title: {
-    fontSize: 32,
-  },
-})
+});
