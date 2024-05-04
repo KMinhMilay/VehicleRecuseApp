@@ -11,7 +11,8 @@ import React from 'react';
 import { TextField } from 'react-native-ui-lib';
 import openMap from 'react-native-open-maps';
 
-function AddTripScreen({navigation}: any): React.JSX.Element {
+function AddTripScreen({ route,navigation}: any): React.JSX.Element {
+  const {id,vehicle} = route.params;
   const Back = () => {
     navigation.goBack();
   };
@@ -65,7 +66,7 @@ function AddTripScreen({navigation}: any): React.JSX.Element {
                     console.log('Text have changed');
                 }}
 
-                value={'Xe máy'}
+                value={vehicle}
                 enableErrors
                 validate={['required']}
                 validationMessage={[

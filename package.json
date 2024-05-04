@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@react-native-community/datetimepicker": "^8.0.0",
+    "@react-native-community/geolocation": "^3.2.1",
     "@react-navigation/bottom-tabs": "^6.5.20",
     "@react-navigation/devtools": "^6.0.26",
     "@react-navigation/material-bottom-tabs": "^6.2.28",
