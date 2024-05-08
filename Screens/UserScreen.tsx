@@ -7,7 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   TextField,
@@ -17,9 +17,11 @@ import {
   CheckboxRef,
 } from 'react-native-ui-lib';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import AccountController from '../Controller/AccountController';
 
-function UserInfoScreen({navigation}: any): React.JSX.Element {
+function UserInfoScreen({ navigation }: any): React.JSX.Element {
   const [check, setCheck] = useState(false);
   const [hide, setHide] = useState(false);
   const [hideContainer, setHideContainer] = useState(true);
@@ -38,7 +40,7 @@ function UserInfoScreen({navigation}: any): React.JSX.Element {
   const Logout = () => {
     navigation.popToTop();
   };
-  const onChangeDate = ({event, selectedDate}: any) => {
+  const onChangeDate = ({ event, selectedDate }: any) => {
     const curDate = selectedDate || datetime;
 
     setDateTime(curDate);
@@ -55,14 +57,39 @@ function UserInfoScreen({navigation}: any): React.JSX.Element {
   const showDateTime = () => {
     setShow(true);
   };
+
+
+  const controller = new AccountController('VehicleRescue');
+
+  const [fullname, setFullname] = useState('')
+  const [username, setUsername] = useState('')
+  const [number_phone, setNumberPhone] = useState('')
+  const [birthdate, setBirthday] = useState('')
+  const [gmail, setGmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  controller.getAccountById(1) // Ngay đây sẽ thay thế bằng id của người đăng nhập vào
+  .then(account => {
+    setFullname(account.fullname)
+    setUsername(account.username)
+    setNumberPhone(account.phone_number)
+    setBirthday(account.birthdate)
+    setGmail(account.email)
+    setPassword(account.password)
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+
   return (
-    <KeyboardAvoidingView style={{flex: 1}}>
+    <KeyboardAvoidingView style={{ flex: 1 }}>
       <View style={styles.flex_img_back}>
-        <Text style={{fontSize:32,color:'black',textAlign:'center'}}>THÔNG TIN CỦA BẠN</Text>
+        <Text style={{ fontSize: 32, color: 'black', textAlign: 'center' }}>THÔNG TIN CỦA BẠN</Text>
       </View>
 
-      <View style={styles.containerInput}>
-        {hideContainer && (
+      <KeyboardAwareScrollView>
+        <View style={styles.containerInput}>
+
           <View
             style={{
               flexDirection: 'row',
@@ -77,7 +104,7 @@ function UserInfoScreen({navigation}: any): React.JSX.Element {
               onChangeText={() => {
                 console.log('Text have changed');
               }}
-              value={'Nguyen Van A'}
+              value={fullname}
               enableErrors
               validate={['required', (value: string) => value.length > 8]}
               validationMessage={[
@@ -92,8 +119,8 @@ function UserInfoScreen({navigation}: any): React.JSX.Element {
               validateOnBlur
             />
           </View>
-        )}
-        {hideContainer && (
+
+
           <View
             style={{
               flexDirection: 'row',
@@ -108,7 +135,7 @@ function UserInfoScreen({navigation}: any): React.JSX.Element {
                 console.log('Text have changed');
               }}
               readOnly={true}
-              value={'NguyenVanA'}
+              value={username}
               enableErrors
               validate={['required', (value: string) => value.length > 6]}
               validationMessage={[
@@ -119,12 +146,12 @@ function UserInfoScreen({navigation}: any): React.JSX.Element {
               maxLength={30}
               floatingPlaceholderStyle={styles.floatingHolderStyle}
               containerStyle={styles.containerHolderStyle}
-              fieldStyle={[styles.fieldStyle,{backgroundColor:'rgb(206,206,206)'}]}
+              fieldStyle={[styles.fieldStyle, { backgroundColor: 'rgb(206,206,206)' }]}
               validateOnBlur
             />
           </View>
-        )}
-        {hideContainer && (
+
+
           <View
             style={{
               flexDirection: 'row',
@@ -139,7 +166,7 @@ function UserInfoScreen({navigation}: any): React.JSX.Element {
               onChangeText={() => {
                 console.log('Text have changed');
               }}
-              value={'0127398134'}
+              value={number_phone}
               enableErrors
               validate={[
                 'required',
@@ -159,131 +186,133 @@ function UserInfoScreen({navigation}: any): React.JSX.Element {
               validateOnBlur
             />
           </View>
-        )}
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <TextField
+              placeholder={'Ngày-tháng-năm'}
+              floatingPlaceholder
+              readOnly={true}
+              label={'Ngày-tháng-năm'}
+              onChangeText={() => {
+                console.log('Text have changed');
+              }}
+              value={birthdate}
+              enableErrors
+              validate={['required', (value: string) => value.length > 6]}
+              validationMessage={['Field is required', 'Password is too short']}
+              maxLength={30}
+              floatingPlaceholderStyle={styles.floatingHolderStyle}
+              containerStyle={[styles.containerHolderStyle, { width: '80%' }]}
+              fieldStyle={styles.fieldStyle}
+              validateOnBlur
+            />
+            <TouchableOpacity onPress={showDateTime}>
+              <Image
+                source={require('../Assets/Asset/icons8-date-48.png')}
+                style={{ height: 30, width: 30, marginLeft: -42 }}></Image>
+            </TouchableOpacity>
+          </View>
           <TextField
-            placeholder={'Ngày-tháng-năm'}
+            placeholder={'Gmail'}
             floatingPlaceholder
-            readOnly={true}
-            label={'Ngày-tháng-năm'}
-            onChangeText={() => {
-              console.log('Text have changed');
-            }}
-            value={textDate}
-            enableErrors
-            validate={['required', (value: string) => value.length > 6]}
-            validationMessage={['Field is required', 'Password is too short']}
-            maxLength={30}
-            floatingPlaceholderStyle={styles.floatingHolderStyle}
-            containerStyle={[styles.containerHolderStyle, {width: '80%'}]}
-            fieldStyle={styles.fieldStyle}
-            validateOnBlur
-          />
-          <TouchableOpacity onPress={showDateTime}>
-            <Image
-              source={require('../Assets/Asset/icons8-date-48.png')}
-              style={{height: 30, width: 30, marginLeft: -42}}></Image>
-          </TouchableOpacity>
-        </View>
-        <TextField
-          placeholder={'Gmail'}
-          floatingPlaceholder
-          label={'Tên đăng nhập'}
-          onChangeText={() => {
-            console.log('Text have changed');
-          }}
-          onPressIn={() => setHideContainer(false)}
-          onEndEditing={() => setHideContainer(true)}
-          value={'NVA@gmail.com'}
-          enableErrors
-          validate={['required', 'email', (value: string) => value.length >= 8]}
-          validationMessage={[
-            'Không được để trống này',
-            'Không đúng định dạng email',
-            'Email không được dưới 8 kí tự',
-          ]}
-          showCharCounter
-          maxLength={30}
-          floatingPlaceholderStyle={styles.floatingHolderStyle}
-          containerStyle={styles.containerHolderStyle}
-          fieldStyle={styles.fieldStyle}
-          validateOnBlur
-        />
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <TextField
-            placeholder={'Nhập lại mật khẩu mới'}
-            floatingPlaceholder
-            label={'Mật khẩu mới'}
+            label={'Tên đăng nhập'}
             onChangeText={() => {
               console.log('Text have changed');
             }}
             onPressIn={() => setHideContainer(false)}
             onEndEditing={() => setHideContainer(true)}
-            // value={}
+            value={gmail}
             enableErrors
-            validate={['required', (value: string) => value.length > 8]}
+            validate={['required', 'email', (value: string) => value.length >= 8]}
             validationMessage={[
               'Không được để trống này',
-              'Mật khẩu không được dưới 8 kí tự',
+              'Không đúng định dạng email',
+              'Email không được dưới 8 kí tự',
             ]}
+            showCharCounter
             maxLength={30}
             floatingPlaceholderStyle={styles.floatingHolderStyle}
-            containerStyle={[styles.containerHolderStyle, {width: '80%'}]}
+            containerStyle={styles.containerHolderStyle}
             fieldStyle={styles.fieldStyle}
             validateOnBlur
-            secureTextEntry={hide}
           />
-          <TouchableOpacity
+          <View
             style={{
-              height: 48,
-              width: 48,
+              flexDirection: 'row',
               justifyContent: 'center',
               alignItems: 'center',
-              marginLeft: -48,
-            }}
-            onPress={Hide}>
-            <Image
-              source={
-                hide
-                  ? require('../Assets/Asset/icons8-hide-48.png')
-                  : require('../Assets/Asset/icons8-show-48.png')
-              }
-              style={{height: 30, width: 30}}></Image>
-          </TouchableOpacity>
-        </View>
-        <View style={[styles.flex_top_1,{flexDirection:'row',justifyContent:'space-between'}]}>
-          <TouchableOpacity style={styles.btnUpdate} onPress={Update}>
-            <Text
+            }}>
+            <TextField
+              placeholder={'Nhập lại mật khẩu mới'}
+              floatingPlaceholder
+              label={'Mật khẩu mới'}
+              onChangeText={() => {
+                console.log('Text have changed');
+              }}
+              onPressIn={() => setHideContainer(false)}
+              onEndEditing={() => setHideContainer(true)}
+              value={password}
+              enableErrors
+              validate={['required', (value: string) => value.length > 8]}
+              validationMessage={[
+                'Không được để trống này',
+                'Mật khẩu không được dưới 8 kí tự',
+              ]}
+              maxLength={30}
+              floatingPlaceholderStyle={styles.floatingHolderStyle}
+              containerStyle={[styles.containerHolderStyle, { width: '80%' }]}
+              fieldStyle={styles.fieldStyle}
+              validateOnBlur
+              secureTextEntry={hide}
+            />
+            <TouchableOpacity
               style={{
-                color: 'white',
-                fontSize: 18,
-                fontWeight: 'bold',
-              }}>
-              CẬP NHẬT
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.btnLogout} onPress={Logout}>
-            <Text
-              style={{
-                color: 'black',
-                fontSize: 18,
-                fontWeight: 'bold',
-              }}>
-              ĐĂNG XUẤT
-            </Text>
-          </TouchableOpacity>
+                height: 48,
+                width: 48,
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginLeft: -48,
+              }}
+              onPress={Hide}>
+              <Image
+                source={
+                  hide
+                    ? require('../Assets/Asset/icons8-hide-48.png')
+                    : require('../Assets/Asset/icons8-show-48.png')
+                }
+                style={{ height: 30, width: 30 }}></Image>
+            </TouchableOpacity>
+          </View>
+          <View style={[styles.flex_top_1, { flexDirection: 'row', justifyContent: 'space-between' }]}>
+            <TouchableOpacity style={styles.btnUpdate} onPress={Update}>
+              <Text
+                style={{
+                  color: 'white',
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                }}>
+                CẬP NHẬT
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.btnLogout} onPress={Logout}>
+              <Text
+                style={{
+                  color: 'black',
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                }}>
+                ĐĂNG XUẤT
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      </KeyboardAwareScrollView>
+
 
       {show && (
         <View>
@@ -311,7 +340,7 @@ const styles = StyleSheet.create({
     flex: 2,
     justifyContent: 'center',
     alignItems: 'center',
-    borderBottomWidth:0.5
+    borderBottomWidth: 0.5
   },
   flex_center_1: {
     flex: 1,
@@ -381,7 +410,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     elevation: 10,
     marginVertical: 16,
-    marginHorizontal:12
+    marginHorizontal: 12
   },
   btnLogout: {
     borderRadius: 15,
@@ -392,6 +421,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     elevation: 10,
     marginVertical: 16,
-    marginHorizontal:12
+    marginHorizontal: 12
   },
 });
