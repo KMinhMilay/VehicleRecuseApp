@@ -52,6 +52,9 @@ function ResetPassScreen({navigation}: any) : React.JSX.Element {
     if (password && confirmPassword) {
       setPasswordMatched(password == confirmPassword);
     }
+    else {
+      setPasswordMatched(false);
+    }
   },[password, confirmPassword])
   function Check() {
     setCheck(!check);
