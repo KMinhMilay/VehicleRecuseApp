@@ -7,7 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   TextField,
@@ -16,18 +16,43 @@ import {
   Checkbox,
   CheckboxRef,
 } from 'react-native-ui-lib';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
+import SQLite from 'react-native-sqlite-storage';
+import md5 from 'md5';
 
+
+const db = SQLite.openDatabase(
+  {
+      name: 'VehicleRescue',
+      location: 'default',
+  },
+  () => { },
+  error => { console.log(error) }
+);
 
 function ResetPassScreen({navigation}: any) : React.JSX.Element {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [md5Hash, setMd5Hash] = useState('');
+
   const [check, setCheck] = useState(false);
   const [hide, setHide] = useState(false);
-  const [datetime, setDateTime] = React.useState(new Date());
-  const [textDate, setTextDate] = React.useState(
-    new Date().toLocaleDateString(),
-  );
-  const [show, setShow] = React.useState(false);
+  const [passwordMatched, setPasswordMatched] = useState(false);
+
+  useEffect(() => {
+    if (password.length > 0) {
+      convertToMd5();
+    }
+    else {
+      setMd5Hash('');
+    }
+  }, [password]);
+
+  useEffect(() => {
+    if (password && confirmPassword) {
+      setPasswordMatched(password == confirmPassword);
+    }
+  },[password, confirmPassword])
   function Check() {
     setCheck(!check);
     return true;
@@ -35,29 +60,40 @@ function ResetPassScreen({navigation}: any) : React.JSX.Element {
   function Hide() {
     setHide(!hide);
   }
-  const ResetPass = () => {
-    navigation.goBack();
-  };
   const BackTo = () => {
     navigation.goBack();
+  }
+  const convertToMd5 = () => { 
+    const hash = md5(password); 
+    setMd5Hash(hash); 
   };
-  const onChangeDate = ({event, selectedDate}: any) => {
-    const curDate = selectedDate || datetime;
+  const areAllFieldsFilled = (fields: any[]) => {
+    return fields.every((field: string | null) => field !== null && field.trim() !== '');
+  };
+  const ResetPass = () => {
+    if (!areAllFieldsFilled([email, password, confirmPassword])) {
+      Alert.alert('Lỗi', 'Vui lòng điền tất cả thông tin cần thiết');
+      return;
+    }
+    else {
+      db.transaction((tx) => {
+        tx.executeSql(
+          "UPDATE Accounts set password = ? where email = ?",
+          [md5Hash, email],
+          (tx, results) => {
+            if (results.rowsAffected > 0){
+              Alert.alert('Thông báo', 'Đặt lại mật khẩu thành công');
+              navigation.goBack();
+            }
+            else {
+              Alert.alert('Thông báo', 'Đặt lại mật khẩu không thành công. Hãy kiểm tra lại email');
+            } 
+          }
+        );
+      });
+    }
+  };
 
-    setDateTime(curDate);
-    let tempDate = new Date(curDate);
-    let fDate =
-      tempDate.getDate() +
-      '/' +
-      (tempDate.getMonth() + 1) +
-      '/' +
-      tempDate.getFullYear();
-    setTextDate(fDate);
-    setShow(!show);
-  };
-  const showDateTime = () => {
-    setShow(true);
-  };
   return (
     <KeyboardAvoidingView
       style={{flex:1}}
@@ -75,13 +111,11 @@ function ResetPassScreen({navigation}: any) : React.JSX.Element {
       </View>
       <View style={styles.containerInput}>
       <TextField
-          placeholder={'Gmail'}
+          placeholder={'Email'}
           floatingPlaceholder
-          label={'Tên đăng nhập'}
-          onChangeText={() => {
-            console.log('Text have changed');
-          }}
-          // value={}
+          label={'Email'}
+          onChangeText={setEmail}
+          value={email}
           enableErrors
           validate={['required', 'email', (value: string) => value.length >= 8]}
           validationMessage={[
@@ -106,10 +140,8 @@ function ResetPassScreen({navigation}: any) : React.JSX.Element {
             placeholder={'Nhập mật khẩu mới'}
             floatingPlaceholder
             label={'Mật khẩu'}
-            onChangeText={() => {
-              console.log('Text have changed');
-            }}
-            // value={}
+            onChangeText={setPassword}
+            value={password}
             enableErrors
             validate={['required', (value: string) => value.length > 8]}
             validationMessage={[
@@ -142,11 +174,9 @@ function ResetPassScreen({navigation}: any) : React.JSX.Element {
           <TextField
             placeholder={'Nhập lại mật khẩu mới'}
             floatingPlaceholder
-            label={'Mật khẩu'}
-            onChangeText={() => {
-              console.log('Text have changed');
-            }}
-            // value={}
+            label={'Mật khẩu mới'}
+            onChangeText={setConfirmPassword}
+            value={confirmPassword}
             enableErrors
             validate={['required', (value: string) => value.length > 8]}
             validationMessage={[
@@ -170,8 +200,11 @@ function ResetPassScreen({navigation}: any) : React.JSX.Element {
               style={{height: 30, width: 30}}></Image>
           </TouchableOpacity>
         </View>
+        {!passwordMatched && password && confirmPassword && (
+            <Text style={{ color: 'red' }}>Mật khẩu không khớp. Vui lòng thử lại.</Text>
+          )}
         <View style={styles.flex_top_1}>
-          <TouchableOpacity style={styles.btnReset} onPress={ResetPass}>
+          <TouchableOpacity style={[styles.btnReset, !check && styles.disabledBtn || !passwordMatched && styles.disabledBtn]} onPress={ResetPass} disabled={!check || !passwordMatched}>
             <Text
               style={{
                 color: 'white',
@@ -189,19 +222,6 @@ function ResetPassScreen({navigation}: any) : React.JSX.Element {
           />
         </View>
       </View>
-
-      {show && (
-        <View>
-          <DateTimePicker
-            testID="dateTimePicker"
-            value={datetime}
-            mode={'date'}
-            display="spinner"
-            onChange={onChangeDate}
-          />
-        </View>
-      )}
-      
       
     </KeyboardAvoidingView>
   );
@@ -288,5 +308,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     elevation: 10,
     marginVertical: 16,
+  },
+  disabledBtn: {
+    backgroundColor: 'gray',
   },
 })
