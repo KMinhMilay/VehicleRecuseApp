@@ -7,7 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   TextField,
@@ -21,10 +21,11 @@ import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import AccountController from '../Controller/AccountController';
 
+
 function UserInfoScreen({ navigation }: any): React.JSX.Element {
   const [check, setCheck] = useState(false);
   const [hide, setHide] = useState(false);
-  const [hideContainer, setHideContainer] = useState(true);
+  //const [hideContainer, setHideContainer] = useState(true);
   const [datetime, setDateTime] = React.useState(new Date());
   const [textDate, setTextDate] = React.useState(
     new Date().toLocaleDateString(),
@@ -34,9 +35,33 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
   function Hide() {
     setHide(!hide);
   }
+
   const Update = () => {
-    Alert.alert('Cập nhật');
+    if (hasError) {
+      Alert.alert('Thông báo', 'Vui lòng nhập đầy đủ thông tin');
+      return;
+    }
+    controller.updateAccount({
+      fullname: fullname,
+      phone_number: number_phone,
+      birthdate: birthdate,
+      email: email,
+      password: password,
+      id: 1, // Thay bằng id của người dùng đang đăng nhập
+    })
+      .then(success => {
+        if (success) {
+          console.log('Tài khoản đã được cập nhật thành công');
+          Alert.alert('Cập nhật thành công');
+        } else {
+          console.log('Không có tài khoản nào được cập nhật');
+        }
+      })
+      .catch(error => {
+        console.error('Có lỗi trong quá trình cập nhật', error);
+      });
   };
+
   const Logout = () => {
     navigation.popToTop();
   };
@@ -59,27 +84,31 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
   };
 
 
-  const controller = new AccountController('VehicleRescue');
+  const controller = new AccountController('VehicleRescue')
 
-  const [fullname, setFullname] = useState('')
+  const [fullname, setFullname] = useState('anh quoc')
   const [username, setUsername] = useState('')
   const [number_phone, setNumberPhone] = useState('')
   const [birthdate, setBirthday] = useState('')
-  const [gmail, setGmail] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  controller.getAccountById(1) // Ngay đây sẽ thay thế bằng id của người đăng nhập vào
-  .then(account => {
-    setFullname(account.fullname)
-    setUsername(account.username)
-    setNumberPhone(account.phone_number)
-    setBirthday(account.birthdate)
-    setGmail(account.email)
-    setPassword(account.password)
-  })
-  .catch(error => {
-    console.error('Error:', error);
-  });
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    controller.getAccountById(1) // Ngay đây sẽ thay thế bằng id của người đăng nhập vào
+      .then(account => {
+        setFullname(account.fullname)
+        setUsername(account.username)
+        setNumberPhone(account.phone_number)
+        setBirthday(account.birthdate)
+        setEmail(account.email)
+        setPassword(account.password)
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }, []);
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }}>
@@ -88,6 +117,7 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
       </View>
 
       <KeyboardAwareScrollView>
+
         <View style={styles.containerInput}>
 
           <View
@@ -101,9 +131,7 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
               placeholder={'Họ và tên bạn'}
               floatingPlaceholder
               label={'Họ và tên'}
-              onChangeText={() => {
-                console.log('Text have changed');
-              }}
+              
               value={fullname}
               enableErrors
               validate={['required', (value: string) => value.length > 8]}
@@ -111,6 +139,9 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
                 'Không được để trống này',
                 'Họ và tên không được dưới 8 kí tự',
               ]}
+              onChangeText={text => {
+                setFullname(text);
+              }}
               showCharCounter
               maxLength={30}
               floatingPlaceholderStyle={styles.floatingHolderStyle}
@@ -163,20 +194,21 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
               inputMode="numeric"
               floatingPlaceholder
               label={'Tên đăng nhập'}
-              onChangeText={() => {
-                console.log('Text have changed');
+              onChangeText={(text) => {
+                setHasError(!text || text.length !== 10)
+                setNumberPhone(text)
               }}
               value={number_phone}
               enableErrors
               validate={[
                 'required',
                 'number',
-                (value: string) => value.length >= 10,
+                (value: string) => value.length === 10,
               ]}
               validationMessage={[
                 'Không được để trống này',
                 'Không được chứa chữ hay kí tự đặc biệt',
-                'Số điện thoại không được dưới 10 chữ số',
+                'Số điện thoại không hợp lệ',
               ]}
               showCharCounter
               maxLength={30}
@@ -198,8 +230,8 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
               floatingPlaceholder
               readOnly={true}
               label={'Ngày-tháng-năm'}
-              onChangeText={() => {
-                console.log('Text have changed');
+              onChangeText={(text) => {
+                setBirthday(text)
               }}
               value={birthdate}
               enableErrors
@@ -221,12 +253,13 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
             placeholder={'Gmail'}
             floatingPlaceholder
             label={'Tên đăng nhập'}
-            onChangeText={() => {
-              console.log('Text have changed');
+            onChangeText={(text) => {
+              setEmail(text)
             }}
-            onPressIn={() => setHideContainer(false)}
-            onEndEditing={() => setHideContainer(true)}
-            value={gmail}
+
+            //onPressIn={() => setHideContainer(false)}
+            //onEndEditing={() => setHideContainer(true)}
+            value={email}
             enableErrors
             validate={['required', 'email', (value: string) => value.length >= 8]}
             validationMessage={[
@@ -251,11 +284,11 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
               placeholder={'Nhập lại mật khẩu mới'}
               floatingPlaceholder
               label={'Mật khẩu mới'}
-              onChangeText={() => {
-                console.log('Text have changed');
+              onChangeText={(text) => {
+                setPassword(text)
               }}
-              onPressIn={() => setHideContainer(false)}
-              onEndEditing={() => setHideContainer(true)}
+              //onPressIn={() => setHideContainer(false)}
+              //onEndEditing={() => setHideContainer(true)}
               value={password}
               enableErrors
               validate={['required', (value: string) => value.length > 8]}

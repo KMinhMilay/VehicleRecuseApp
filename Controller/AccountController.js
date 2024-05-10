@@ -12,6 +12,10 @@ class AccountController {
     getAccountById(id) {
       return this.model.getAccountById(id)
     }
+
+    updateAccount(accountData) {
+      return this.model.updateAccount(accountData)
+    }
   }
   
   export default AccountController;
