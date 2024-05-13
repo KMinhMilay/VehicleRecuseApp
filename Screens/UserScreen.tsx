@@ -7,7 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   TextField,
@@ -18,8 +18,11 @@ import {
 } from 'react-native-ui-lib';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
+import { UserContext } from '../Contexts/UserContext';
 
 function UserInfoScreen({navigation}: any): React.JSX.Element {
+  const {updateUser, clearUserData} = useContext(UserContext);
+
   const [check, setCheck] = useState(false);
   const [hide, setHide] = useState(false);
   const [hideContainer, setHideContainer] = useState(true);
@@ -36,6 +39,7 @@ function UserInfoScreen({navigation}: any): React.JSX.Element {
     Alert.alert('Cập nhật');
   };
   const Logout = () => {
+    clearUserData();
     navigation.popToTop();
   };
   const onChangeDate = ({event, selectedDate}: any) => {
