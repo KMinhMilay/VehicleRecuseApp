@@ -21,7 +21,6 @@ import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import AccountController from '../Controller/AccountController';
 
-
 function UserInfoScreen({ navigation }: any): React.JSX.Element {
   const [check, setCheck] = useState(false);
   const [hide, setHide] = useState(false);
@@ -37,8 +36,9 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
   }
 
   const Update = () => {
+    validateFields();
     if (hasError) {
-      Alert.alert('Thông báo', 'Vui lòng nhập đầy đủ thông tin');
+      Alert.alert('Thông báo', 'Vui lòng nhập đầy đủ và đúng thông tin');
       return;
     }
     controller.updateAccount({
@@ -66,7 +66,10 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
     navigation.popToTop();
   };
   const onChangeDate = ({ event, selectedDate }: any) => {
+
     const curDate = selectedDate || datetime;
+
+    console.log(curDate)
 
     setDateTime(curDate);
     let tempDate = new Date(curDate);
@@ -76,6 +79,9 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
       (tempDate.getMonth() + 1) +
       '/' +
       tempDate.getFullYear();
+
+    console.log(fDate);
+    
     setTextDate(fDate);
     setShow(!show);
   };
@@ -86,7 +92,7 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
 
   const controller = new AccountController('VehicleRescue')
 
-  const [fullname, setFullname] = useState('anh quoc')
+  const [fullname, setFullname] = useState('')
   const [username, setUsername] = useState('')
   const [number_phone, setNumberPhone] = useState('')
   const [birthdate, setBirthday] = useState('')
@@ -96,6 +102,10 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
+    loadInfoUser()
+  }, []);
+  
+  const loadInfoUser = () => {
     controller.getAccountById(1) // Ngay đây sẽ thay thế bằng id của người đăng nhập vào
       .then(account => {
         setFullname(account.fullname)
@@ -108,7 +118,49 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
       .catch(error => {
         console.error('Error:', error);
       });
-  }, []);
+  };
+
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validateFields = () => {
+    let hasError = false;
+
+    // Kiểm tra fullname
+    if (fullname.trim() === '') {
+      hasError = true;
+    } else if (fullname.length <= 8) {
+      hasError = true;
+    }
+
+    // Kiểm tra số điện thoại
+    if (number_phone.trim() === '') {
+      hasError = true;
+    } else if (number_phone.length < 10) {
+      hasError = true;
+    } else if (number_phone.length > 10) {
+      hasError = true;
+    }
+
+    // Kiểm tra email
+    if (email.trim() === '') {
+      hasError = true;
+    } else if (email.length <= 8) {
+      hasError = true;
+    } else if (!isValidEmail(email)) {
+      hasError = true;
+    }
+
+    if (password.trim() === '') {
+      hasError = true;
+    } else if (password.length <= 8) {
+      hasError = true;
+    }
+
+    setHasError(hasError);
+  };
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }}>
@@ -130,8 +182,7 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
               showSoftInputOnFocus={false}
               placeholder={'Họ và tên bạn'}
               floatingPlaceholder
-              label={'Họ và tên'}
-              
+              label={'Họ và tên'} 
               value={fullname}
               enableErrors
               validate={['required', (value: string) => value.length > 8]}
@@ -231,7 +282,8 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
               readOnly={true}
               label={'Ngày-tháng-năm'}
               onChangeText={(text) => {
-                setBirthday(text)
+                //setBirthday(text)
+                setBirthday(textDate)
               }}
               value={birthdate}
               enableErrors
