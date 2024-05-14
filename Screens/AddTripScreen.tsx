@@ -23,25 +23,6 @@ function AddTripScreen({ route,navigation}: any): React.JSX.Element {
   const [longitudeOutput, setLongitudeOutput] = useState<string>('');
   const [latitudeOutput, setLatitudeOutput] = useState<string>('');
 
-  // useEffect(() => {
-  //   // Lấy vị trí hiện tại
-  //   Geolocation.getCurrentPosition(
-  //     position => {
-  //       const { latitude, longitude } = position.coords;
-  //       if (latitude && longitude) {
-  //         setLatitude(latitude);
-  //         setLongitude(longitude);
-  //         setLatitudeOutput(latitude.toString());
-  //         setLongitudeOutput(longitude.toString());
-  //       }
-  //     },
-  //     error => {
-  //       console.log(error.message);
-  //     },
-  //     { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
-  //   );
-  // }, []);
-
   function _getCurrentLocation() {
     Geolocation.getCurrentPosition(
       position => {
@@ -72,6 +53,11 @@ function AddTripScreen({ route,navigation}: any): React.JSX.Element {
       console.log("Không lấy được vị trí hiện tại của thiết bị")
     }
   }
+
+function _addTrip() {
+  
+}
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.flex_img_back}>
