@@ -142,7 +142,7 @@ function AddTripScreen({ route,navigation}: any): React.JSX.Element {
                 onChangeText={() => {
                     console.log('Text have changed');
                 }}
-
+                readOnly={true}
                 value={longitudeOutput}
                 enableErrors
                 validate={['required']}
@@ -166,7 +166,7 @@ function AddTripScreen({ route,navigation}: any): React.JSX.Element {
                 onChangeText={() => {
                     console.log('Text have changed');
                 }}
-
+                readOnly={true}
                 value={latitudeOutput}
                 enableErrors
                 validate={['required']}
