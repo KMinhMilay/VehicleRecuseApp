@@ -7,17 +7,70 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { TextField } from 'react-native-ui-lib';
 import openMap from 'react-native-open-maps';
+import Geolocation from '@react-native-community/geolocation';
 
 function AddTripScreen({ route,navigation}: any): React.JSX.Element {
   const {id,vehicle} = route.params;
+
+  const [note, setNote] = useState('');
+
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+
+  const [longitudeOutput, setLongitudeOutput] = useState<string>('');
+  const [latitudeOutput, setLatitudeOutput] = useState<string>('');
+
+  // useEffect(() => {
+  //   // Lấy vị trí hiện tại
+  //   Geolocation.getCurrentPosition(
+  //     position => {
+  //       const { latitude, longitude } = position.coords;
+  //       if (latitude && longitude) {
+  //         setLatitude(latitude);
+  //         setLongitude(longitude);
+  //         setLatitudeOutput(latitude.toString());
+  //         setLongitudeOutput(longitude.toString());
+  //       }
+  //     },
+  //     error => {
+  //       console.log(error.message);
+  //     },
+  //     { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+  //   );
+  // }, []);
+
+  function _getCurrentLocation() {
+    Geolocation.getCurrentPosition(
+      position => {
+        const { latitude, longitude } = position.coords;
+        if (latitude && longitude) {
+          setLatitude(latitude);
+          setLongitude(longitude);
+          setLatitudeOutput(latitude.toString());
+          setLongitudeOutput(longitude.toString());
+        }
+      },
+      error => {
+        console.log(error.message);
+      },
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+    );
+  }
+
   const Back = () => {
     navigation.goBack();
   };
-  function _goToYosemite() {
-    openMap({ latitude: 37.865101, longitude: -119.538330 });
+
+  function _goToCurrentLocation() {
+    if (latitude && longitude) {
+      console.log("Vị trí hiện tại của thiết bị: ", latitude, longitude)
+      openMap({ latitude: latitude, longitude: longitude })
+    } else {
+      console.log("Không lấy được vị trí hiện tại của thiết bị")
+    }
   }
   return (
     <SafeAreaView style={styles.container}>
@@ -33,7 +86,7 @@ function AddTripScreen({ route,navigation}: any): React.JSX.Element {
         <Text style={{textAlign:'center',fontSize:36,color:'black'}}>Thêm thông tin khẩn cấp</Text>
       </View>
       <View style={[styles.flex_top_1,{flexDirection:'row'}]}>
-          <TouchableOpacity style={styles.btnFavorites} >
+          <TouchableOpacity style={styles.btnFavorites} onPress={_getCurrentLocation}>
             <Text
               style={{
                 color: 'white',
@@ -41,10 +94,10 @@ function AddTripScreen({ route,navigation}: any): React.JSX.Element {
                 fontWeight: 'bold',
                 textAlign:'center'
               }}>
-              DANH SÁCH ƯA THÍCH
+              LẤY VỊ TRÍ HIỆN TẠI
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.btnCurrentLocation} onPress={_goToYosemite}>
+          <TouchableOpacity style={styles.btnCurrentLocation} onPress={_goToCurrentLocation}>
             <Text
               style={{
                 color: 'black',
@@ -90,7 +143,7 @@ function AddTripScreen({ route,navigation}: any): React.JSX.Element {
                     console.log('Text have changed');
                 }}
 
-                value={'null'}
+                value={longitudeOutput}
                 enableErrors
                 validate={['required']}
                 validationMessage={[
@@ -114,7 +167,7 @@ function AddTripScreen({ route,navigation}: any): React.JSX.Element {
                     console.log('Text have changed');
                 }}
 
-                value={'null'}
+                value={latitudeOutput}
                 enableErrors
                 validate={['required']}
                 validationMessage={[
@@ -134,11 +187,12 @@ function AddTripScreen({ route,navigation}: any): React.JSX.Element {
                 placeholder={'Ghi chú'}
                 floatingPlaceholder
                 label={'Tên đăng nhập'}
-                onChangeText={() => {
+                onChangeText={(text) => {
                     console.log('Text have changed');
+                    setNote(text)
                 }}
 
-                value={'note'}
+                value={note}
                 enableErrors
                 validate={['required']}
                 validationMessage={[
