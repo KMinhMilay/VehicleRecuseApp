@@ -7,7 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   TextField,
@@ -15,35 +15,96 @@ import {
   Button,
   Checkbox,
   CheckboxRef,
+  Icon,
 } from 'react-native-ui-lib';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
+import SQLite from 'react-native-sqlite-storage';
+import md5 from 'md5';
 
+const db = SQLite.openDatabase(
+  {
+      name: 'VehicleRescue',
+      location: 'default',
+  },
+  () => { },
+  error => { console.log(error) }
+);
 function RegisterScreen({navigation}: any): React.JSX.Element {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [fullname, setFullname] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [email, setEmail] = useState('');
+  const [birthdate, setBirthdate] = useState('');
+
   const [check, setCheck] = useState(false);
   const [hide, setHide] = useState(false);
   const [hideContainer, setHideContainer] = useState(true);
   const [datetime, setDateTime] = React.useState(new Date());
-  const [textDate, setTextDate] = React.useState(
-    new Date().toLocaleDateString(),
-  );
   const [show, setShow] = React.useState(false);
+  const [md5Hash, setMd5Hash] = useState('');
+
+  useEffect(() => {
+    if (password.length > 0) {
+      convertToMd5();
+    }
+    else {
+      setMd5Hash('');
+    }
+  }, [password]);
+  useEffect(() => {
+    console.log(md5Hash);
+  }, [md5Hash]);
+  useEffect(() => {
+    console.log(birthdate);
+  }, [birthdate])
   function Check() {
     setCheck(!check);
-    return true;
   }
   function Hide() {
     setHide(!hide);
   }
+  const convertToMd5 = () => { 
+    const hash = md5(password); 
+    setMd5Hash(hash); 
+  };
+  const areAllFieldsFilled = (fields: any[]) => {
+    return fields.every((field: string | null) => field !== null && field.trim() !== '');
+  };
+  
   const Register = () => {
-    navigation.goBack();
+    if (!areAllFieldsFilled([username, password, fullname, phoneNumber, email, birthdate])) {
+      Alert.alert('Lỗi', 'Vui lòng điền tất cả thông tin cần thiết');
+      return;
+    }
+    else {
+      try {
+        db.transaction((tx) => {
+          tx.executeSql(
+              "INSERT INTO Accounts (username, fullname, phone_number, birthdate, email, password, role) VALUES (?,?,?,?,?,?,?)",
+              [username, fullname, phoneNumber, birthdate, email, md5Hash, 'customer'],
+              (tx, results) => {
+                if (results.rowsAffected > 0) {
+                  Alert.alert('Thông báo', 'Tạo tài khoản thành công')
+                  navigation.goBack();
+  
+                } else {
+                  Alert.alert('Thông báo', 'Tạo tài khoản không thành công. Có vẻ thông tin đăng tài khoản chưa hợp lệ. Vui lòng kiểm tra lại thông tin đã điền.');
+                }
+              }
+          );
+      });
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
   const BackTo = () => {
     navigation.goBack();
   };
   const onChangeDate = ({event, selectedDate}: any) => {
-    const curDate = selectedDate || datetime;
+    const curDate = selectedDate;
 
     setDateTime(curDate);
     let tempDate = new Date(curDate);
@@ -53,12 +114,16 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
       (tempDate.getMonth() + 1) +
       '/' +
       tempDate.getFullYear();
-    setTextDate(fDate);
+    
     setShow(!show);
+    setBirthdate(fDate);
   };
   const showDateTime = () => {
     setShow(true);
   };
+
+  
+
   return (
     <KeyboardAvoidingView style={{flex: 1}}>
       <View style={styles.flex_img_back}>
@@ -90,7 +155,7 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
               enableErrors
               validate={['required', (value: string) => value.length > 8]}
               validationMessage={[
-                'Không được để trống này',
+                'Không được để trống',
                 'Họ và tên không được dưới 8 kí tự',
               ]}
               showCharCounter
@@ -113,15 +178,13 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
               placeholder={'Tên đăng nhập'}
               floatingPlaceholder
               label={'Tên đăng nhập'}
-              onChangeText={() => {
-                console.log('Text have changed');
-              }}
-              // value={}
+              onChangeText={setUsername}
+              value={username}
               enableErrors
-              validate={['required', (value: string) => value.length > 6]}
+              validate={['required', (value: string) => value.length >= 6]}
               validationMessage={[
-                'Không được để trống này',
-                'Tên đăng nhập không được dưới 8 kí tự',
+                'Không được để trống',
+                'Tên đăng nhập không được dưới 6 kí tự',
               ]}
               showCharCounter
               maxLength={30}
@@ -143,11 +206,9 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
               placeholder={'Số điện thoại'}
               inputMode="numeric"
               floatingPlaceholder
-              label={'Tên đăng nhập'}
-              onChangeText={() => {
-                console.log('Text have changed');
-              }}
-              // value={}
+              label={'Số điện thoại'}
+              onChangeText={setPhoneNumber}
+              value={phoneNumber}
               enableErrors
               validate={[
                 'required',
@@ -155,7 +216,7 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
                 (value: string) => value.length >= 10,
               ]}
               validationMessage={[
-                'Không được để trống này',
+                'Không được để trống',
                 'Không được chứa chữ hay kí tự đặc biệt',
                 'Số điện thoại không được dưới 10 chữ số',
               ]}
@@ -179,13 +240,11 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
             floatingPlaceholder
             readOnly={true}
             label={'Ngày-tháng-năm'}
-            onChangeText={() => {
-              console.log('Text have changed');
-            }}
-            value={textDate}
+            onChangeText={setBirthdate}
+            value={birthdate}
             enableErrors
-            validate={['required', (value: string) => value.length > 6]}
-            validationMessage={['Field is required', 'Password is too short']}
+            validate={['required']}
+            validationMessage={['Không được để trống']}
             maxLength={30}
             floatingPlaceholderStyle={styles.floatingHolderStyle}
             containerStyle={[styles.containerHolderStyle, {width: '80%'}]}
@@ -199,19 +258,17 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
           </TouchableOpacity>
         </View>
         <TextField
-          placeholder={'Gmail'}
+          placeholder={'Email'}
           floatingPlaceholder
-          label={'Tên đăng nhập'}
-          onChangeText={() => {
-            console.log('Text have changed');
-          }}
+          label={'Email'}
+          onChangeText={setEmail}
           onPressIn={() => setHideContainer(false)}
           onEndEditing={() => setHideContainer(true)}
-          // value={}
+          value={email}
           enableErrors
           validate={['required', 'email', (value: string) => value.length >= 8]}
           validationMessage={[
-            'Không được để trống này',
+            'Không được để trống',
             'Không đúng định dạng email',
             'Email không được dưới 8 kí tự',
           ]}
@@ -232,16 +289,14 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
             placeholder={'Mật khẩu'}
             floatingPlaceholder
             label={'Mật khẩu'}
-            onChangeText={() => {
-              console.log('Text have changed');
-            }}
+            onChangeText={setPassword}
             onPressIn={() => setHideContainer(false)}
             onEndEditing={() => setHideContainer(true)}
-            // value={}
+            value={password}
             enableErrors
             validate={['required', (value: string) => value.length > 8]}
             validationMessage={[
-              'Không được để trống này',
+              'Không được để trống',
               'Mật khẩu không được dưới 8 kí tự',
             ]}
             maxLength={30}
@@ -270,7 +325,7 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
           </TouchableOpacity>
         </View>
         <View style={styles.flex_top_1}>
-          <TouchableOpacity style={styles.btnRegister} onPress={Register}>
+          <TouchableOpacity style={[styles.btnRegister, !check && styles.disabledBtn]} onPress={Register} disabled={!check}>
             <Text
               style={{
                 color: 'white',
@@ -296,7 +351,9 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
             value={datetime}
             mode={'date'}
             display="spinner"
-            onChange={onChangeDate}
+            onChange={(event, selectedDate) => {
+              onChangeDate({event, selectedDate});
+            }}
           />
         </View>
       )}
@@ -386,4 +443,8 @@ const styles = StyleSheet.create({
     elevation: 10,
     marginVertical: 16,
   },
+  disabledBtn: {
+    backgroundColor: 'gray',
+  },
+
 });

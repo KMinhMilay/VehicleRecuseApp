@@ -7,7 +7,8 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+
+import React, {useContext, useState, useEffect} from 'react';
 import {
   View,
   TextField,
@@ -21,7 +22,12 @@ import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import AccountController from '../Controller/AccountController';
 
-function UserInfoScreen({ navigation }: any): React.JSX.Element {
+import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
+import { UserContext } from '../Contexts/UserContext';
+
+function UserInfoScreen({navigation}: any): React.JSX.Element {
+  const {updateUser, clearUserData} = useContext(UserContext);
+
   const [check, setCheck] = useState(false);
   const [hide, setHide] = useState(false);
   //const [hideContainer, setHideContainer] = useState(true);
@@ -63,6 +69,7 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
   };
 
   const Logout = () => {
+    clearUserData();
     navigation.popToTop();
   };
   const onChangeDate = ({ event, selectedDate }: any) => {
