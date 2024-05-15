@@ -7,26 +7,26 @@ import { Image } from 'react-native-ui-lib';
 function CustomerScreen({navigation}: any): React.JSX.Element {
   const Motorbike = () => {
     navigation.navigate('AddTripScreen',{
-      id:'xemay',
+      id:'motorbike',
       vehicle: 'Xe máy'
     });
   };
   const Car = () => {
     navigation.navigate('AddTripScreen',{
-      id:'xeoto',
+      id:'car',
       vehicle: 'Xe ô tô'
     });
   };
   const Truck = () => {
     
     navigation.navigate('AddTripScreen',{
-      id:'xetai',
+      id:'truck',
       vehicle: 'Xe tải'
     });
   };
   const Bicycle = () => {
     navigation.navigate('AddTripScreen',{
-      id:'xedap',
+      id:'bike',
       vehicle: 'Xe đạp'
     });
   };
