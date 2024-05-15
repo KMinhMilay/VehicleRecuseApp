@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   SafeAreaView,
   ScrollView,
@@ -7,13 +8,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { TextField } from 'react-native-ui-lib';
 import openMap from 'react-native-open-maps';
 import Geolocation from '@react-native-community/geolocation';
+import { addRequest } from '../Controller/RequestController';
+import { UserContext } from '../Contexts/UserContext';
 
-function AddTripScreen({ route,navigation}: any): React.JSX.Element {
-  const {id,vehicle} = route.params;
+function AddTripScreen({ route, navigation }: any): React.JSX.Element {
+  const { idVehicle, vehicle } = route.params;
 
   const [note, setNote] = useState('');
 
@@ -22,6 +25,8 @@ function AddTripScreen({ route,navigation}: any): React.JSX.Element {
 
   const [longitudeOutput, setLongitudeOutput] = useState<string>('');
   const [latitudeOutput, setLatitudeOutput] = useState<string>('');
+
+  const formattedTime = new Date().toLocaleString();
 
   function _getCurrentLocation() {
     Geolocation.getCurrentPosition(
@@ -54,9 +59,16 @@ function AddTripScreen({ route,navigation}: any): React.JSX.Element {
     }
   }
 
-function _addTrip() {
-  
-}
+  const { id } = useContext(UserContext)
+
+  function _addTrip() {
+    try {
+      Alert.alert('Thành công', 'Yêu cầu của bạn đã được gửi')
+      addRequest(0, 0, 1, 1, idVehicle, id, null, longitude, latitude, 'Đang đợi thợ', note, formattedTime)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -69,151 +81,151 @@ function _addTrip() {
         </TouchableOpacity>
       </View>
       <View style={{}}>
-        <Text style={{textAlign:'center',fontSize:36,color:'black'}}>Thêm thông tin khẩn cấp</Text>
+        <Text style={{ textAlign: 'center', fontSize: 36, color: 'black' }}>Thêm thông tin khẩn cấp</Text>
       </View>
-      <View style={[styles.flex_top_1,{flexDirection:'row'}]}>
-          <TouchableOpacity style={styles.btnFavorites} onPress={_getCurrentLocation}>
-            <Text
-              style={{
-                color: 'white',
-                fontSize: 18,
-                fontWeight: 'bold',
-                textAlign:'center'
-              }}>
-              LẤY VỊ TRÍ HIỆN TẠI
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.btnCurrentLocation} onPress={_goToCurrentLocation}>
+      <View style={[styles.flex_top_1, { flexDirection: 'row' }]}>
+        <TouchableOpacity style={styles.btnFavorites} onPress={_getCurrentLocation}>
+          <Text
+            style={{
+              color: 'white',
+              fontSize: 18,
+              fontWeight: 'bold',
+              textAlign: 'center'
+            }}>
+            LẤY VỊ TRÍ HIỆN TẠI
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.btnCurrentLocation} onPress={_goToCurrentLocation}>
+          <Text
+            style={{
+              color: 'black',
+              fontSize: 18,
+              fontWeight: 'bold',
+              textAlign: 'center'
+            }}>
+            XEM VỊ TRÍ HIỆN TẠI
+          </Text>
+        </TouchableOpacity>
+      </View>
+      <ScrollView style={styles.scrollView}>
+        <View style={styles.containerInput}>
+          <TextField
+            placeholder={'Loại phương tiện cần sửa'}
+            floatingPlaceholder
+            label={'Loại phương tiện cần sửa'}
+            onChangeText={() => {
+              console.log('Text have changed');
+            }}
+
+            value={vehicle}
+            enableErrors
+            validate={['required']}
+            validationMessage={[
+              'Không được để trống này',
+            ]}
+            readOnly={true}
+
+            maxLength={20}
+            floatingPlaceholderStyle={styles.floatingHolderStyle}
+            containerStyle={styles.containerHolderStyle}
+            fieldStyle={styles.fieldStyle}
+            validateOnBlur
+          />
+        </View>
+        <View style={styles.containerInput}>
+          <TextField
+            placeholder={'Vị trí của bạn (Tọa độ X)'}
+            floatingPlaceholder
+            label={''}
+            onChangeText={() => {
+              console.log('Text have changed');
+            }}
+            readOnly={true}
+            value={longitudeOutput}
+            enableErrors
+            validate={['required']}
+            validationMessage={[
+              'Không được để trống này',
+
+            ]}
+            showCharCounter
+            maxLength={30}
+            floatingPlaceholderStyle={styles.floatingHolderStyle}
+            containerStyle={styles.containerHolderStyle}
+            fieldStyle={styles.fieldStyle}
+            validateOnBlur
+          />
+        </View>
+        <View style={styles.containerInput}>
+          <TextField
+            placeholder={'Vị trí của bạn (Tọa độ Y)'}
+            floatingPlaceholder
+            label={''}
+            onChangeText={() => {
+              console.log('Text have changed');
+            }}
+            readOnly={true}
+            value={latitudeOutput}
+            enableErrors
+            validate={['required']}
+            validationMessage={[
+              'Không được để trống này',
+
+            ]}
+            showCharCounter
+            maxLength={30}
+            floatingPlaceholderStyle={styles.floatingHolderStyle}
+            containerStyle={styles.containerHolderStyle}
+            fieldStyle={styles.fieldStyle}
+            validateOnBlur
+          />
+        </View>
+        <View style={styles.containerInput}>
+          <TextField
+            placeholder={'Ghi chú'}
+            floatingPlaceholder
+            label={'Tên đăng nhập'}
+            onChangeText={(text) => {
+              console.log('Text have changed');
+              setNote(text)
+            }}
+
+            value={note}
+            enableErrors
+            validate={['required']}
+            validationMessage={[
+              'Không được để trống này',
+            ]}
+            showCharCounter
+            maxLength={240}
+            floatingPlaceholderStyle={styles.floatingHolderStyle}
+            containerStyle={styles.containerHolderStyle}
+            fieldStyle={styles.fieldStyle}
+            validateOnBlur
+          />
+        </View>
+        <View style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginTop: 16 }}>
+          <TouchableOpacity style={styles.btnAddFav}>
             <Text
               style={{
                 color: 'black',
                 fontSize: 18,
                 fontWeight: 'bold',
-                textAlign:'center'
+                textAlign: 'center'
               }}>
-              XEM VỊ TRÍ HIỆN TẠI
+              THÊM VÀO ƯU THÍCH
             </Text>
           </TouchableOpacity>
-        </View>
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.containerInput}>
-            <TextField
-                placeholder={'Loại phương tiện cần sửa'}
-                floatingPlaceholder
-                label={'Loại phương tiện cần sửa'}
-                onChangeText={() => {
-                    console.log('Text have changed');
-                }}
-
-                value={vehicle}
-                enableErrors
-                validate={['required']}
-                validationMessage={[
-                    'Không được để trống này',
-                ]}
-                readOnly={true}
-                
-                maxLength={20}
-                floatingPlaceholderStyle={styles.floatingHolderStyle}
-                containerStyle={styles.containerHolderStyle}
-                fieldStyle={styles.fieldStyle}
-                validateOnBlur
-            />
-        </View>
-        <View style={styles.containerInput}>
-            <TextField
-                placeholder={'Vị trí của bạn (Tọa độ X)'}
-                floatingPlaceholder
-                label={''}
-                onChangeText={() => {
-                    console.log('Text have changed');
-                }}
-                readOnly={true}
-                value={longitudeOutput}
-                enableErrors
-                validate={['required']}
-                validationMessage={[
-                    'Không được để trống này',
-
-                ]}
-                showCharCounter
-                maxLength={30}
-                floatingPlaceholderStyle={styles.floatingHolderStyle}
-                containerStyle={styles.containerHolderStyle}
-                fieldStyle={styles.fieldStyle}
-                validateOnBlur
-            />
-        </View>
-        <View style={styles.containerInput}>
-            <TextField
-                placeholder={'Vị trí của bạn (Tọa độ Y)'}
-                floatingPlaceholder
-                label={''}
-                onChangeText={() => {
-                    console.log('Text have changed');
-                }}
-                readOnly={true}
-                value={latitudeOutput}
-                enableErrors
-                validate={['required']}
-                validationMessage={[
-                    'Không được để trống này',
-
-                ]}
-                showCharCounter
-                maxLength={30}
-                floatingPlaceholderStyle={styles.floatingHolderStyle}
-                containerStyle={styles.containerHolderStyle}
-                fieldStyle={styles.fieldStyle}
-                validateOnBlur
-            />
-        </View>
-        <View style={styles.containerInput}>
-            <TextField
-                placeholder={'Ghi chú'}
-                floatingPlaceholder
-                label={'Tên đăng nhập'}
-                onChangeText={(text) => {
-                    console.log('Text have changed');
-                    setNote(text)
-                }}
-
-                value={note}
-                enableErrors
-                validate={['required']}
-                validationMessage={[
-                    'Không được để trống này',
-                ]}
-                showCharCounter
-                maxLength={240}
-                floatingPlaceholderStyle={styles.floatingHolderStyle}
-                containerStyle={styles.containerHolderStyle}
-                fieldStyle={styles.fieldStyle}
-                validateOnBlur
-            />
-        </View>
-        <View style={{justifyContent:'center',alignItems:'center',flexDirection:'row',marginTop:16}}>
-            <TouchableOpacity style={styles.btnAddFav}>
-                <Text
-                style={{
-                    color: 'black',
-                    fontSize: 18,
-                    fontWeight: 'bold',
-                    textAlign:'center'
-                }}>
-                THÊM VÀO ƯU THÍCH
-                </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.btnAccpect}>
-                <Text
-                style={{
-                    color: 'white',
-                    fontSize: 18,
-                    fontWeight: 'bold',
-                }}>
-                TÌM CHUYẾN
-                </Text>
-            </TouchableOpacity>
+          <TouchableOpacity style={styles.btnAccpect} onPress={_addTrip}>
+            <Text
+              style={{
+                color: 'white',
+                fontSize: 18,
+                fontWeight: 'bold',
+              }}>
+              TÌM CHUYẾN
+            </Text>
+          </TouchableOpacity>
         </View>
 
       </ScrollView>
@@ -228,19 +240,19 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingBottom: 32,
   },
-  containerInput:{
-    flex:1,
-    justifyContent:'center',
-    alignItems:'center',
-    marginTop:8
+  containerInput: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8
   },
   mapView: {
     flex: 0.25,
-    
+
   },
   scrollView: {
     flex: 8,
-    paddingTop:36,
+    paddingTop: 36,
   },
   text: {
     fontSize: 42,
@@ -273,7 +285,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   flex_top_1: {
-    flex:0.2,
+    flex: 0.2,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -285,8 +297,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 10,
-    marginHorizontal:16,
-    textAlign:'center'
+    marginHorizontal: 16,
+    textAlign: 'center'
   },
   btnCurrentLocation: {
     borderRadius: 15,
@@ -296,9 +308,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 10,
-    marginHorizontal:16,
-    textAlign:'center',
-    borderWidth:1,
+    marginHorizontal: 16,
+    textAlign: 'center',
+    borderWidth: 1,
   },
   btnAccpect: {
     borderRadius: 15,
@@ -308,9 +320,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 10,
-    marginHorizontal:16,
-    textAlign:'center',
-    borderWidth:1,
+    marginHorizontal: 16,
+    textAlign: 'center',
+    borderWidth: 1,
   },
   btnAddFav: {
     borderRadius: 15,
@@ -320,8 +332,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 10,
-    marginHorizontal:16,
-    textAlign:'center',
-    borderWidth:1,
+    marginHorizontal: 16,
+    textAlign: 'center',
+    borderWidth: 1,
   },
 });
