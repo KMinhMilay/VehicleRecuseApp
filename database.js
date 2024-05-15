@@ -3,7 +3,7 @@ import SQLite from 'react-native-sqlite-storage';
 SQLite.DEBUG(true);
 SQLite.enablePromise(true);
 
-const database_name = "VehicleRescue.db";
+const database_name = "VehicleRescue";
 const database_version = "1.0";
 const database_displayname = "SQLite MyDatabase";
 const database_size = 200000;
