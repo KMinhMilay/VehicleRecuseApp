@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { TextField } from 'react-native-ui-lib';
 import openMap from 'react-native-open-maps';
 import Geolocation from '@react-native-community/geolocation';
@@ -16,19 +16,24 @@ import { addRequest } from '../Controller/RequestController';
 import { UserContext } from '../Contexts/UserContext';
 
 function AddTripScreen({ route, navigation }: any): React.JSX.Element {
-  const { idVehicle, vehicle } = route.params;
 
-  const [note, setNote] = useState('');
+  const { id } = useContext(UserContext)    // id của người dùng
 
-  const [latitude, setLatitude] = useState<number | null>(null);
+  const { idVehicle, vehicle } = route.params;    // id của phương tiện
+
+  const [note, setNote] = useState('');     // ghi chú
+
+  const [latitude, setLatitude] = useState<number | null>(null);      // tọa độ để mở openMap
   const [longitude, setLongitude] = useState<number | null>(null);
 
-  const [longitudeOutput, setLongitudeOutput] = useState<string>('');
+  const [longitudeOutput, setLongitudeOutput] = useState<string>('');     // tọa độ kiểu string để truyền vào value
   const [latitudeOutput, setLatitudeOutput] = useState<string>('');
 
-  const formattedTime = new Date().toLocaleString();
+  const Back = () => {
+    navigation.goBack();
+  };
 
-  function _getCurrentLocation() {
+  function _getCurrentLocation() {          // lấy vị trí hiện tại của thiết bị
     Geolocation.getCurrentPosition(
       position => {
         const { latitude, longitude } = position.coords;
@@ -46,11 +51,7 @@ function AddTripScreen({ route, navigation }: any): React.JSX.Element {
     );
   }
 
-  const Back = () => {
-    navigation.goBack();
-  };
-
-  function _goToCurrentLocation() {
+  function _goToCurrentLocation() {       // mở gg map đi đến vị trí hiện tại
     if (latitude && longitude) {
       console.log("Vị trí hiện tại của thiết bị: ", latitude, longitude)
       openMap({ latitude: latitude, longitude: longitude })
@@ -59,12 +60,10 @@ function AddTripScreen({ route, navigation }: any): React.JSX.Element {
     }
   }
 
-  const { id } = useContext(UserContext)
-
-  function _addTrip() {
+  function _addTrip() {                   // thêm yêu cầu mới từ người dùng
     try {
       Alert.alert('Thành công', 'Yêu cầu của bạn đã được gửi')
-      addRequest(0, 0, 1, 1, idVehicle, id, null, longitude, latitude, 'Đang đợi thợ', note, formattedTime)
+      addRequest(0, 0, 1, 1, idVehicle, id, null, longitude, latitude, 'Đang đợi thợ', note, new Date().toLocaleString())
     } catch (error) {
       console.log(error)
     }
