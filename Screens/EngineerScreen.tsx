@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {
   Colors,
@@ -22,40 +22,41 @@ import {
 } from 'react-native-ui-lib';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import _ from 'lodash';
+import { getRequestWaiting } from '../Controller/RequestController';
 
-const DATA = [
-  {
-    id: '1',
-    vehicle: 'Xe Ô Tô',
-    status: 'Đang đợi thợ',
-    xLocation: '123',
-    yLocation: '101',
-    day: '10/4/2024',
-    note: 'ádfafafaf',
+// const DATA = [
+//   {
+//     id: '1',
+//     vehicle: 'Xe Ô Tô',
+//     status: 'Đang đợi thợ',
+//     xLocation: '123',
+//     yLocation: '101',
+//     day: '10/4/2024',
+//     note: 'ádfafafaf',
     
-  },
+//   },
   
-];
+// ];
 type ItemProps = {
   id: string;
-  vehicle: string;
+  vehicle_name: string;
   status: string;
-  xLocation: string;
-  yLocation: string;
-  day: string;
-  note: string;
+  longitude: string;
+  latitude: string;
+  create_at: string;
+  notes: string;
   onPressAccept: () => void;
   onPressCancel: () => void;
   onLongPress: () => void
 };
 const Item = ({
   id,
-  vehicle,
+  vehicle_name,
   status,
-  xLocation,
-  yLocation,
-  day,
-  note,
+  longitude,
+  latitude,
+  create_at,
+  notes,
   onPressAccept,
   onPressCancel,
   onLongPress,
@@ -121,7 +122,7 @@ const Item = ({
               width: 64,
               height: 32,
             }}>
-            <Text style={{fontSize: 16, textAlign: 'center'}}>{vehicle}</Text>
+            <Text style={{fontSize: 16, textAlign: 'center'}}>{vehicle_name}</Text>
           </View>
           <View
             style={{
@@ -148,7 +149,7 @@ const Item = ({
               justifyContent: 'center',
               alignItems: 'center',
             }}>
-            <Text style={{fontSize: 16, textAlign: 'center'}}>Ngày: {day}</Text>
+            <Text style={{fontSize: 16, textAlign: 'center'}}>Ngày: {create_at}</Text>
           </View>
           <View
             style={{
@@ -158,13 +159,13 @@ const Item = ({
               alignItems: 'center',
             }}>
             <Text style={{fontSize: 16, textAlign: 'center'}}>
-              X: {xLocation}
+              X: {longitude}
             </Text>
           </View>
           <View
             style={{width: 96, justifyContent: 'center', alignItems: 'center'}}>
             <Text style={{fontSize: 16, textAlign: 'center'}}>
-              Y: {yLocation}
+              Y: {latitude}
             </Text>
           </View>
         </View>
@@ -230,6 +231,18 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
   const showDateTime = () => {
     setShow(true);
   };
+
+  const [requests, setRequests] = React.useState<ItemProps[]>([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await getRequestWaiting('Đang đợi thợ');
+      setRequests(data);
+    };
+
+    loadData();
+  }, []);
+  
   return (
     <View style={styles.container}>
       <View style={[styles.flex_img_back, {borderBottomWidth: 0.5}]}>
@@ -352,16 +365,16 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
         <FlatList
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
-          data={DATA}
+          data={requests}
           renderItem={({item}) => (
             <Item
               id={item.id}
-              vehicle={item.vehicle}
+              vehicle_name={item.vehicle_name}
               status={item.status}
-              xLocation={item.xLocation}
-              yLocation={item.yLocation}
-              day={item.day}
-              note={item.note}
+              longitude={item.longitude}
+              latitude={item.latitude}
+              create_at={item.create_at}
+              notes={item.notes}
               onPressAccept={()=>console.log("Accpect")}
               onPressCancel={()=>console.log("Cancel")}
               onLongPress={()=>Alert.alert("Details")}

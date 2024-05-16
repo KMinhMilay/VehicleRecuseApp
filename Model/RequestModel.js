@@ -17,7 +17,7 @@ export const addRequest =
 
 export const getRequestWaiting = async (status) => {
     const db = await getDBConnection();
-    const query = 'SELECT * FROM Requests WHERE status = ?';
+    const query = 'SELECT Requests.*, Vehicles.vehicle_name FROM Requests JOIN Vehicles ON Requests.vehicle_id = Vehicles.id WHERE Requests.status = ?';
     return new Promise((resolve, reject) => {
         db.transaction(tx => {
           tx.executeSql(
