@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { TextField } from 'react-native-ui-lib';
 import openMap from 'react-native-open-maps';
 import Geolocation from '@react-native-community/geolocation';
@@ -29,10 +29,17 @@ function AddTripScreen({ route, navigation }: any): React.JSX.Element {
   const [longitudeOutput, setLongitudeOutput] = useState<string>('');     // tọa độ kiểu string để truyền vào value
   const [latitudeOutput, setLatitudeOutput] = useState<string>('');
 
+  const [bookmarkByUser, setBookmarkByUser] = useState(false);      // nhận biết người dùng có ưa thích yêu cầu đó không
+
   const Back = () => {
     navigation.goBack();
   };
 
+  function _bookmark() {      // cập nhật ưa thích
+    setBookmarkByUser(true);
+    Alert.alert('Yêu cầu này đã được đánh dấu là ưa thích');
+  }
+  
   function _getCurrentLocation() {          // lấy vị trí hiện tại của thiết bị
     Geolocation.getCurrentPosition(
       position => {
@@ -63,7 +70,12 @@ function AddTripScreen({ route, navigation }: any): React.JSX.Element {
   function _addTrip() {                   // thêm yêu cầu mới từ người dùng
     try {
       Alert.alert('Thành công', 'Yêu cầu của bạn đã được gửi')
-      addRequest(0, 0, 1, 1, idVehicle, id, null, longitude, latitude, 'Đang đợi thợ', note, new Date().toLocaleString())
+      if (bookmarkByUser) {
+        addRequest(1, 0, 1, 1, idVehicle, id, null, longitude, latitude, 'Đang đợi thợ', note, new Date().toLocaleString())
+      } else {
+        addRequest(0, 0, 1, 1, idVehicle, id, null, longitude, latitude, 'Đang đợi thợ', note, new Date().toLocaleString())
+      }
+      
     } catch (error) {
       console.log(error)
     }
@@ -204,7 +216,7 @@ function AddTripScreen({ route, navigation }: any): React.JSX.Element {
           />
         </View>
         <View style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginTop: 16 }}>
-          <TouchableOpacity style={styles.btnAddFav}>
+          <TouchableOpacity style={styles.btnAddFav} onPress={_bookmark}>
             <Text
               style={{
                 color: 'black',
