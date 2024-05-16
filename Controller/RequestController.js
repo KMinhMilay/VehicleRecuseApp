@@ -10,3 +10,13 @@ export const addRequest = async (is_bookmarked_by_user, is_bookmarked_by_enginee
       console.error('Có lỗi khi thêm yêu cầu: ', error);
     }
   };
+
+export const getRequestWaiting = async (status) => {
+  try {
+    const listRequests = await RequestModel.getRequestWaiting(status);
+    console.log('Lấy danh sách yêu cầu đang đợi thợ thành công');
+    return listRequests;
+  } catch (error) {
+    console.error('Có lỗi khi lấy yêu cầu:', error);
+  }
+}
