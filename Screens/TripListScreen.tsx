@@ -6,90 +6,92 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {Colors, Drawer, TextField} from 'react-native-ui-lib';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { getRequestById } from '../Controller/RequestController';
+import { UserContext } from '../Contexts/UserContext';
 
-const DATA = [
-  {
-    id: '1',
-    vehicle: 'Xe Ô Tô',
-    status: 'Đang đợi thợ',
-    xLocation: '123',
-    yLocation: '101',
-    day: '10/4/2024',
-    note: 'ádfafafaf',
-    id_engineer:'1a12',
-    bookmark: false,
-  },
-  {
-    id: '2',
-    vehicle: 'Xe tải',
-    status: 'Đã hoàn thành',
-    xLocation: '123',
-    yLocation: '1211',
-    day: '10/4/2024',
-    note: 'ádfafafaf',
-    id_engineer:'2a12',
-    bookmark: true,
-  },
-  {
-    id: '3',
-    vehicle: 'Xe Đạp',
-    status: 'Hủy',
-    xLocation: '123',
-    yLocation: '101',
-    day: '10/4/2024',
-    note: 'ádfafafaf',
-    id_engineer:'null',
-    bookmark: true,
-  },
-  {
-    id: '4',
-    vehicle: 'Xe máy',
-    status: 'Đang thực hiện',
-    xLocation: '123',
-    yLocation: '101',
-    day: '10/4/2024',
-    note: 'ádfafafaf',
-    id_engineer:'2a12',
-    bookmark: false,
-  },
-  {
-    id: '5',
-    vehicle: 'Xe Ô Tô',
-    status: 'Đã hoàn thành',
-    xLocation: '123',
-    yLocation: '101',
-    day: '10/4/2024',
-    note: 'ádfafafaf',
-    id_engineer:'2a12',
-    bookmark: false,
-  },
-];
+// const DATA = [
+//   {
+//     id: '1',
+//     vehicle: 'Xe Ô Tô',
+//     status: 'Đang đợi thợ',
+//     xLocation: '123',
+//     yLocation: '101',
+//     day: '10/4/2024',
+//     note: 'ádfafafaf',
+//     id_engineer:'1a12',
+//     bookmark: false,
+//   },
+//   {
+//     id: '2',
+//     vehicle: 'Xe tải',
+//     status: 'Đã hoàn thành',
+//     xLocation: '123',
+//     yLocation: '1211',
+//     day: '10/4/2024',
+//     note: 'ádfafafaf',
+//     id_engineer:'2a12',
+//     bookmark: true,
+//   },
+//   {
+//     id: '3',
+//     vehicle: 'Xe Đạp',
+//     status: 'Hủy',
+//     xLocation: '123',
+//     yLocation: '101',
+//     day: '10/4/2024',
+//     note: 'ádfafafaf',
+//     id_engineer:'null',
+//     bookmark: true,
+//   },
+//   {
+//     id: '4',
+//     vehicle: 'Xe máy',
+//     status: 'Đang thực hiện',
+//     xLocation: '123',
+//     yLocation: '101',
+//     day: '10/4/2024',
+//     note: 'ádfafafaf',
+//     id_engineer:'2a12',
+//     bookmark: false,
+//   },
+//   {
+//     id: '5',
+//     vehicle: 'Xe Ô Tô',
+//     status: 'Đã hoàn thành',
+//     xLocation: '123',
+//     yLocation: '101',
+//     day: '10/4/2024',
+//     note: 'ádfafafaf',
+//     id_engineer:'2a12',
+//     bookmark: false,
+//   },
+// ];
 type ItemProps = {
   id: string;
-  vehicle: string;
+  vehicle_name: string;
   status: string;
-  xLocation: string;
-  yLocation: string;
-  day: string;
-  note: string;
+  longitude: string;
+  latitude: string;
+  create_at: string;
+  notes: string;
   bookmark: boolean;
-  id_engineer: string;
+  engineer_id: string;
   onPressBookmark: () => void;
   onPressRead:() => void;
 };
 const Item = ({
   id,
-  vehicle,
+  vehicle_name,
   status,
-  xLocation,
-  yLocation,
-  day,
-  note,
+  longitude,
+  latitude,
+  create_at,
+  notes,
   bookmark,
-  id_engineer,
+  engineer_id,
   onPressBookmark,
   onPressRead
 }: ItemProps) => (
@@ -149,7 +151,7 @@ const Item = ({
               width: 64,
               height: 32,
             }}>
-            <Text style={{fontSize: 16, textAlign: 'center'}}>{vehicle}</Text>
+            <Text style={{fontSize: 16, textAlign: 'center'}}>{vehicle_name}</Text>
           </View>
           <View style={{ width: 128,justifyContent:'center',alignItems:'center',}}>
             <Text style={{fontSize: 16, textAlign: 'center',fontWeight:'bold'}}>
@@ -165,18 +167,18 @@ const Item = ({
           }}>
           <View style={{borderRightWidth: 0.5, width: 96,              justifyContent:'center',
               alignItems:'center',}}>
-            <Text style={{fontSize: 16, textAlign: 'center'}}>Ngày: {day}</Text>
+            <Text style={{fontSize: 16, textAlign: 'center'}}>Ngày: {create_at}</Text>
           </View>
           <View style={{borderRightWidth: 0.5, width: 96,              justifyContent:'center',
               alignItems:'center',}}>
             <Text style={{fontSize: 16, textAlign: 'center'}}>
-              X: {xLocation}
+              X: {longitude}
             </Text>
           </View>
           <View style={{width: 96,              justifyContent:'center',
               alignItems:'center',}}>
             <Text style={{fontSize: 16, textAlign: 'center'}}>
-              Y: {yLocation}
+              Y: {latitude}
             </Text>
           </View>
           {/* <View style={{ width: 64, height: 32,justifyContent:'center',alignItems:'center',}}>
@@ -250,6 +252,19 @@ function TripList(): React.JSX.Element {
   const showDateTime = () => {
     setShow(true);
   };
+
+  const {id} = useContext(UserContext)
+  const [requests, setRequests] = React.useState<ItemProps[]>([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await getRequestById(id);
+      setRequests(data);
+    };
+
+    loadData();
+  }, []);
+  
   return (
     <View style={styles.container}>
       <View style={[styles.flex_img_back, {borderBottomWidth: 0.5}]}>
@@ -373,18 +388,18 @@ function TripList(): React.JSX.Element {
         <FlatList
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
-          data={DATA}
+          data={requests}
           renderItem={({item}) => (
             <Item
               id={item.id}
-              vehicle={item.vehicle}
+              vehicle_name={item.vehicle_name}
               status={item.status}
-              xLocation={item.xLocation}
-              yLocation={item.yLocation}
-              day={item.day}
-              note={item.note}
+              longitude={item.longitude}
+              latitude={item.latitude}
+              create_at={item.create_at}
+              notes={item.notes}
               bookmark={item.bookmark}
-              id_engineer={item.id_engineer}
+              engineer_id={item.engineer_id}
               onPressBookmark={()=>console.log("Đã thêm bookmark")}
               onPressRead={()=>console.log("Details")}
             />
