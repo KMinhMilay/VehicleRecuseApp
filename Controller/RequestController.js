@@ -11,12 +11,21 @@ export const addRequest = async (is_bookmarked_by_user, is_bookmarked_by_enginee
   }
 };
 
-export const getRequestById = async (id) => {
+export const getRequestByIdUser = async (idUser) => {
   try {
-    const listRequests = await RequestModel.getRequestById(id);
+    const listRequests = await RequestModel.getRequestByIdUser(idUser);
     console.log('Lấy danh sách yêu cầu theo id thành công');
     return listRequests;
   } catch (error) {
     console.error('Có lỗi khi lấy yêu cầu:', error);
+  }
+}
+
+export const updateBookmarkRequestCustomer = async (id, bookmark) => {
+  try {
+    await RequestModel.updateBookmarkRequestCustomer(id, bookmark);
+    console.log('Cập nhật bookmark yêu cầu thành công');
+  } catch (error) {
+    console.error('Có lỗi khi cập nhật bookmark yêu cầu:', error);
   }
 }

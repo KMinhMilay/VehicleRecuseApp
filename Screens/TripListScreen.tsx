@@ -9,7 +9,7 @@ import {
 import React, {useContext, useEffect, useState} from 'react';
 import {Colors, Drawer, TextField} from 'react-native-ui-lib';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { getRequestById } from '../Controller/RequestController';
+import { getRequestByIdUser } from '../Controller/RequestController';
 import { UserContext } from '../Contexts/UserContext';
 
 // const DATA = [
@@ -77,7 +77,7 @@ type ItemProps = {
   latitude: string;
   create_at: string;
   notes: string;
-  bookmark: boolean;
+  is_bookmarked_by_user: number;
   engineer_id: string;
   onPressBookmark: () => void;
   onPressRead:() => void;
@@ -90,7 +90,7 @@ const Item = ({
   latitude,
   create_at,
   notes,
-  bookmark,
+  is_bookmarked_by_user,
   engineer_id,
   onPressBookmark,
   onPressRead
@@ -165,11 +165,11 @@ const Item = ({
             justifyContent: 'space-between',
             alignItems: 'center',
           }}>
-          <View style={{borderRightWidth: 0.5, width: 96,              justifyContent:'center',
+          <View style={{borderRightWidth: 0.5, width: 96, justifyContent:'center',
               alignItems:'center',}}>
             <Text style={{fontSize: 16, textAlign: 'center'}}>Ngày: {create_at}</Text>
           </View>
-          <View style={{borderRightWidth: 0.5, width: 96,              justifyContent:'center',
+          <View style={{borderRightWidth: 0.5, width: 96, justifyContent:'center',
               alignItems:'center',}}>
             <Text style={{fontSize: 16, textAlign: 'center'}}>
               X: {longitude}
@@ -203,7 +203,7 @@ const Item = ({
           }} onPress={onPressBookmark}>
           <Image
             source={
-              bookmark
+              is_bookmarked_by_user === 1
                 ? require('../Assets/Asset/icons8-bookmark-48.png')
                 : require('../Assets/Asset/icons8-unbookmark-48.png')
             }
@@ -258,12 +258,17 @@ function TripList(): React.JSX.Element {
 
   useEffect(() => {
     const loadData = async () => {
-      const data = await getRequestById(id);
+      const data = await getRequestByIdUser(id);
       setRequests(data);
+      console.log(requests)
     };
 
     loadData();
   }, []);
+
+  // function updateBookmark() {
+  //   //if ()
+  // }
   
   return (
     <View style={styles.container}>
@@ -398,13 +403,15 @@ function TripList(): React.JSX.Element {
               latitude={item.latitude}
               create_at={item.create_at}
               notes={item.notes}
-              bookmark={item.bookmark}
+              is_bookmarked_by_user={item.is_bookmarked_by_user}
               engineer_id={item.engineer_id}
               onPressBookmark={()=>console.log("Đã thêm bookmark")}
               onPressRead={()=>console.log("Details")}
             />
+            
           )}
           keyExtractor={item => item.id}
+          
         />
       </View>
 

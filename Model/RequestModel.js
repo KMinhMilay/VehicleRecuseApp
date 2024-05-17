@@ -15,14 +15,14 @@ export const addRequest =
                 vehicle_id, customer_id, engineer_id, longitude, latitude, status, notes, create_at]);
     };
 
-export const getRequestById = async (id) => {
+export const getRequestByIdUser = async (idUser) => {
     const db = await getDBConnection();
     const query = 'SELECT Requests.*, Vehicles.vehicle_name FROM Requests JOIN Vehicles ON Requests.vehicle_id = Vehicles.id WHERE Requests.customer_id = ? OR Requests.engineer_id = ?';
     return new Promise((resolve, reject) => {
         db.transaction(tx => {
             tx.executeSql(
                 query,
-                [id],
+                [idUser],
                 (tx, results) => {
                     let rows = results.rows;
                     let data = [];
@@ -32,6 +32,25 @@ export const getRequestById = async (id) => {
                     }
 
                     resolve(data);
+                },
+                (tx, error) => {
+                    reject(error);
+                }
+            );
+        });
+    });
+}
+
+export const updateBookmarkRequestCustomer = async (id, bookmark) => {
+    const db = await getDBConnection();
+    const query = 'UPDATE Requests SET is_bookmarked_by_user = ? WHERE id = ?';
+    return new Promise((resolve, reject) => {
+        db.transaction(tx => {
+            tx.executeSql(
+                query,
+                [bookmark, id],
+                (tx, results) => {
+                    resolve(results);
                 },
                 (tx, error) => {
                     reject(error);
