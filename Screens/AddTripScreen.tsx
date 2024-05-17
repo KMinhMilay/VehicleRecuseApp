@@ -67,13 +67,21 @@ function AddTripScreen({ route, navigation }: any): React.JSX.Element {
     }
   }
 
+  const formatDate = (dateString: Date) => {
+    const year = dateString.getFullYear();
+    const month = String(dateString.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0 nên cần +1
+    const day = String(dateString.getDate()).padStart(2, '0');
+    console.log(`${year}/${month}/${day}`)
+    return `${year}/${month}/${day}`;
+  };
+
   function _addTrip() {                   // thêm yêu cầu mới từ người dùng
     try {
       Alert.alert('Thành công', 'Yêu cầu của bạn đã được gửi')
       if (bookmarkByUser) {
-        addRequest(1, 0, 1, 1, idVehicle, id, null, longitude, latitude, 'Đang đợi thợ', note, new Date().toLocaleString())
+        addRequest(1, 0, 1, 1, idVehicle, id, null, longitude, latitude, 'Đang đợi thợ', note, formatDate(new Date()))
       } else {
-        addRequest(0, 0, 1, 1, idVehicle, id, null, longitude, latitude, 'Đang đợi thợ', note, new Date().toLocaleString())
+        addRequest(0, 0, 1, 1, idVehicle, id, null, longitude, latitude, 'Đang đợi thợ', note, formatDate(new Date()))
       }
       
     } catch (error) {
