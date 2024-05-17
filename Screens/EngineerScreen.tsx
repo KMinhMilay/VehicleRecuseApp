@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 
 import {
   Colors,
@@ -22,11 +22,46 @@ import {
 } from 'react-native-ui-lib';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import _ from 'lodash';
+import { List } from 'react-native-paper';
+import SQLite from 'react-native-sqlite-storage';
+import { UserContext } from '../Contexts/UserContext';
+
+const db = SQLite.openDatabase(
+  {
+      name: 'VehicleRescue',
+      location: 'default',
+  },
+  () => { },
+  error => { console.log(error) }
+);
 
 const DATA = [
   {
     id: '1',
     vehicle: 'Xe Ô Tô',
+    status: 'Đang thực hiện',
+    xLocation: '123',
+    yLocation: '101',
+    day: '10/4/2024',
+    note: 'ádfafafaf',
+    
+  },
+  {
+    id: '2',
+    vehicle: 'Xe Ô Tô',
+    status: 'Đang thực hiện',
+    xLocation: '123',
+    yLocation: '101',
+    day: '10/4/2024',
+    note: 'ádfafafaf',
+    
+  }
+  
+];
+const DATA_2 = [
+  {
+    id: '2',
+    vehicle: 'Xe máy',
     status: 'Đang đợi thợ',
     xLocation: '123',
     yLocation: '101',
@@ -34,8 +69,18 @@ const DATA = [
     note: 'ádfafafaf',
     
   },
+  {
+    id: '3',
+    vehicle: 'Xe máy',
+    status: 'Đang đợi thợ',
+    xLocation: '123',
+    yLocation: '101',
+    day: '10/4/2024',
+    note: 'ádfafafaf',
+    
+  }
   
-];
+]
 type ItemProps = {
   id: string;
   vehicle: string;
@@ -44,11 +89,189 @@ type ItemProps = {
   yLocation: string;
   day: string;
   note: string;
-  onPressAccept: () => void;
+}
+type ItemProps_Processing = {
+  id: string;
+  vehicle: string;
+  status: string;
+  xLocation: string;
+  yLocation: string;
+  day: string;
+  note: string;
+  onPressDone: () => void;
   onPressCancel: () => void;
   onLongPress: () => void
 };
-const Item = ({
+type ItemProps_NoProcessing = {
+  id: string;
+  vehicle: string;
+  status: string;
+  xLocation: string;
+  yLocation: string;
+  day: string;
+  note: string;
+  onPressAccept: () => void;
+  onLongPress: () => void
+};
+const Item_Processing = ({
+  id,
+  vehicle,
+  status,
+  xLocation,
+  yLocation,
+  day,
+  note,
+  onPressDone,
+  onPressCancel,
+  onLongPress,
+}: ItemProps_Processing) => (
+  <Drawer
+    rightItems={[
+      {
+        text: 'Hủy',
+        background: Colors.red30,
+        onPress: onPressCancel,
+      },
+    ]}
+    leftItem={{
+      text: 'Hoàn thành',
+      background: Colors.green10,
+      onPress: onPressDone,
+    }}>
+    <TouchableOpacity
+      style={{
+        flexDirection: 'row',
+        flex: 1,
+        marginVertical: 8,
+        marginHorizontal: 16,
+        borderRadius: 12,
+        backgroundColor: 'white',
+        height: 96,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+      }}
+      onLongPress={onLongPress}>
+      <View
+        style={{
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flex: 4,
+        }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <View
+            style={{
+              borderRightWidth: 0.5,
+              width: 64,
+              height: 32,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text
+              style={{fontSize: 16, textAlign: 'center', fontWeight: 'bold'}}>
+              ID: {id}{' '}
+            </Text>
+          </View>
+          <View
+            style={{
+              borderRightWidth: 0.5,
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: 64,
+              height: 32,
+            }}>
+            <Text style={{fontSize: 16, textAlign: 'center'}}>{vehicle}</Text>
+          </View>
+          <View
+            style={{
+              width: 128,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text
+              style={{fontSize: 16, textAlign: 'center', fontWeight: 'bold'}}>
+              {status}
+            </Text>
+          </View>
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}>
+          <View
+            style={{
+              borderRightWidth: 0.5,
+              width: 96,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text style={{fontSize: 16, textAlign: 'center'}}>Ngày: {day}</Text>
+          </View>
+          <View
+            style={{
+              borderRightWidth: 0.5,
+              width: 96,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text style={{fontSize: 16, textAlign: 'center'}}>
+              X: {xLocation}
+            </Text>
+          </View>
+          <View
+            style={{width: 96, justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={{fontSize: 16, textAlign: 'center'}}>
+              Y: {yLocation}
+            </Text>
+          </View>
+        </View>
+      </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+          flex: 1,
+          borderLeftWidth: 0.5,
+        }}>
+        <TouchableOpacity
+          style={{
+            height: 32,
+            width: 32,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          onPress={onPressDone}>
+          <Image
+            source={require('../Assets/Asset/icons8-accept-48.png')}
+            style={{height: 32, width: 32}}></Image>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            height: 32,
+            width: 32,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          onPress={onPressCancel}>
+          <Image
+            source={require('../Assets/Asset/icons8-delete-48.png')}
+            style={{height: 32, width: 32}}></Image>
+        </TouchableOpacity>
+
+      </View>
+    </TouchableOpacity>
+  </Drawer>
+);
+const Item_NoProcessing = ({
   id,
   vehicle,
   status,
@@ -57,22 +280,17 @@ const Item = ({
   day,
   note,
   onPressAccept,
-  onPressCancel,
   onLongPress,
-}: ItemProps) => (
+}: ItemProps_NoProcessing) => (
   <Drawer
     rightItems={[
       {
-        text: 'Thực hiện',
-        background: Colors.green10,
+        text: 'Thêm',
+        background: Colors.green30,
         onPress: onPressAccept,
       },
     ]}
-    leftItem={{
-      text: 'Hủy',
-      background: Colors.red30,
-      onPress: onPressCancel,
-    }}>
+    >
     <TouchableOpacity
       style={{
         flexDirection: 'row',
@@ -186,19 +404,7 @@ const Item = ({
           }}
           onPress={onPressAccept}>
           <Image
-            source={require('../Assets/Asset/icons8-accept-48.png')}
-            style={{height: 32, width: 32}}></Image>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            height: 32,
-            width: 32,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-          onPress={onPressCancel}>
-          <Image
-            source={require('../Assets/Asset/icons8-delete-48.png')}
+            source={require('../Assets/Asset/icons8-add-48.png')}
             style={{height: 32, width: 32}}></Image>
         </TouchableOpacity>
 
@@ -207,12 +413,96 @@ const Item = ({
   </Drawer>
 );
 function EngineerScreen({navigation}: any): React.JSX.Element {
+  const {id} = useContext(UserContext);
+
+  const [dataProcessing, setDataProcessing] = useState<ItemProps[]>([]);
+  const [dataNoProcessing, setDataNoProcessing] = useState<ItemProps[]>([]);
+
+  const [showListProcessing,setShowListProcessing] = useState(true);
+  const [showListNoProcessing,setShowListNoProcessing] = useState(true);
   const [datetime, setDateTime] = React.useState(new Date());
   const [textDate, setTextDate] = React.useState(
     new Date().toLocaleDateString(),
   );
 
+  // const [data, setData] = useState<Props[]>([]);
+  
   const [show, setShow] = React.useState(false);
+
+  useEffect(() => {
+    try {
+      setDataProcessing([]);
+      setDataNoProcessing([]);
+
+      db.transaction(tx => {
+        tx.executeSql(
+        "SELECT Requests.id, is_bookmarked_by_engineer, show_on_engineer, vehicle_name, customer_id, longitude, latitude, status, create_at, engineer_id from Requests INNER JOIN Vehicles on Requests.vehicle_id = Vehicles.id WHERE engineer_id = ? or engineer_id is NULL ORDER by is_bookmarked_by_engineer DESC",
+        [id],
+        (tx, results) => {
+          let tmpDataProcessing: ItemProps;
+          let tmpDataNoProcessing: ItemProps;
+          for (let i = 0; i < results.rows.length; i++) {
+            if (results.rows.item(i).show_on_engineer) {
+              if (results.rows.item(i).engineer_id == id) {
+                tmpDataProcessing = {
+                  id: results.rows.item(i).id,
+                  vehicle: results.rows.item(i).vehicle_name,
+                  xLocation: results.rows.item(i).longitude,
+                  yLocation: results.rows.item(i).latitude,
+                  status: results.rows.item(i).status,
+                  day: results.rows.item(i).create_at,
+                  note : results.rows.item(i).note,
+                }
+
+                // setDataProcessing((dataProcessing) => [
+                //   ...dataProcessing,
+                //   tmpDataProcessing,]);
+                setDataProcessing((dataProcessing) => [
+                  ...dataProcessing,
+                  tmpDataProcessing,
+                ]);
+              } else {
+                tmpDataNoProcessing = {
+                  id: results.rows.item(i).id,
+                  vehicle: results.rows.item(i).vehicle_name,
+                  xLocation: results.rows.item(i).longitude,
+                  yLocation: results.rows.item(i).latitude,
+                  status: results.rows.item(i).status,
+                  day: results.rows.item(i).create_at,
+                  note : results.rows.item(i).note,
+                }
+                setDataNoProcessing((dataNoProcessing) => [
+                  ...dataNoProcessing,
+                  tmpDataNoProcessing,
+                ]);
+              }
+            }
+          }
+          console.log(" ")
+          console.log("-------------Data received--------------")
+          dataProcessing.forEach(element => {
+            console.log(element)
+          });
+          console.log(" ")
+          console.log("^^^^^-----processing // no processing-----vvvvv")
+          console.log(" ")
+          dataNoProcessing.forEach(element => {
+            console.log(element)
+          });
+          console.log("-------------End of data-------------->")
+          
+
+        });
+      })
+    } catch (error) {
+      
+    }
+  },[])
+
+  const createData = () => {
+    
+  }
+
   const onChangeDate = ({event, selectedDate}: any) => {
     const curDate = selectedDate || datetime;
 
@@ -230,6 +520,12 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
   const showDateTime = () => {
     setShow(true);
   };
+  const showFlatListProcessing = () => {
+    setShowListProcessing(!showListProcessing)
+  }  
+  const showFlatListNoProcessing = () => {
+    setShowListNoProcessing(!showListNoProcessing)
+  }
   return (
     <View style={styles.container}>
       <View style={[styles.flex_img_back, {borderBottomWidth: 0.5}]}>
@@ -347,14 +643,59 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
           </Text>
         </TouchableOpacity>
       </View>
-      <View style={{flex: 1, paddingTop: 36}}>
+      <View style={{flex: 0.75, paddingTop: 36}}>
+        <View>
+        <TouchableOpacity onPress={showFlatListProcessing}>
+                        <Text             style={{
+                color: 'black',
+                fontSize: 16,
+                fontWeight: 'bold',
+                textAlign: 'center',
+              }}>Đang thực hiện</Text>
+          </TouchableOpacity>
+        </View>
         {/* type ItemProps = {id: string, vehicle: string, status: string, xLocation:string,yLocation: string,day: string,note:string,bookmark: boolean}; */}
+        {showListProcessing && (
         <FlatList
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
           data={DATA}
           renderItem={({item}) => (
-            <Item
+            <Item_Processing
+              id={item.id}
+              vehicle={item.vehicle}
+              status={item.status}
+              xLocation={item.xLocation}
+              yLocation={item.yLocation}
+              day={item.day}
+              note={item.note}
+              onPressDone={()=>console.log("Done")}
+              onPressCancel={()=>console.log("Cancel")}
+              onLongPress={()=>Alert.alert("Details")}
+            />
+          )}
+          keyExtractor={item => item.id}
+        />)}
+      </View>
+      <View style={{flex: 1, paddingTop: 36}}>
+        <View>
+          <TouchableOpacity onPress={showFlatListNoProcessing}>
+                        <Text             style={{
+                color: 'black',
+                fontSize: 16,
+                fontWeight: 'bold',
+                textAlign: 'center',
+              }}>Cần chờ được thực hiện</Text>
+          </TouchableOpacity>
+        </View>
+        {/* type ItemProps = {id: string, vehicle: string, status: string, xLocation:string,yLocation: string,day: string,note:string,bookmark: boolean}; */}
+        {showListNoProcessing && (
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          data={DATA_2}
+          renderItem={({item}) => (
+            <Item_NoProcessing
               id={item.id}
               vehicle={item.vehicle}
               status={item.status}
@@ -363,13 +704,14 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
               day={item.day}
               note={item.note}
               onPressAccept={()=>console.log("Accpect")}
-              onPressCancel={()=>console.log("Cancel")}
               onLongPress={()=>Alert.alert("Details")}
             />
           )}
           keyExtractor={item => item.id}
         />
+      )}
       </View>
+
 
       {show && (
         <View>
@@ -413,7 +755,7 @@ const styles = StyleSheet.create({
     height: 48,
   },
   flex_img_back: {
-    flex: 0.25,
+    flex: 0.5,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -435,7 +777,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   flex_top_1: {
-    flex: 0.2,
+    flex: 0.5,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: -32,
