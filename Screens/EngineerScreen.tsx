@@ -472,6 +472,12 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
 
   useEffect(() => {
     console.log(customerInfo)
+    if (customerInfo){
+      Alert.alert(
+        "Thông tin khách hàng",
+        "ID: "+ customerInfo?.id + "\nHọ và tên: "+ customerInfo?.fullname +"\nSố điện thoại: " + customerInfo?.phone_number,
+      )
+    }
   },[customerInfo])
   useEffect(() => {
     if (textDate != "") {
@@ -489,7 +495,7 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
           [id],
           (tx, results) => {
             if (results.rows.length > 0) {
-              setCustomerInfo(results.rows.item(0));
+              setCustomerInfo(results.rows.item(0))
             }
           }
         )
@@ -498,6 +504,34 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
       console.log(error);
     }
   }
+
+  // const getUserInfo = async (id: any) => {
+  //   try {
+  //     await new Promise<void>((resolve, reject) => {
+  //       db.transaction(tx => {
+  //         tx.executeSql(
+  //           "SELECT fullname, phone_number, id FROM Accounts WHERE id = ?",
+  //           [id],
+  //           (tx, results) => {
+  //             if (results.rows.length > 0) {
+  //               setCustomerInfo(results.rows.item(0));
+  //               Alert.alert(
+  //                 "Thông tin khách hàng",
+  //                 "ID: "+ customerInfo?.id + "\nHọ và tên: "+ customerInfo?.fullname +"\nSố điện thoại: " + customerInfo?.phone_number,
+  //               )
+  //               resolve();
+  //             }
+  //           },
+  //           (_, error) => {
+  //             reject(error);
+  //           }
+  //         )
+  //       })
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
   const updateRequestStatus = (requestId: any, status: any) => {
     if (status == "Done"){
@@ -857,10 +891,10 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
               onPressCancel={()=>updateRequestStatus(item.id, "Cancel")}
               onLongPress={()=> {
                 getUserInfo(item.customerId.toString())
-                Alert.alert(
-                  "Thông tin khách hàng",
-                  "ID: "+ customerInfo?.id + "\nHọ và tên: "+ customerInfo?.fullname +"\nSố điện thoại: " + customerInfo?.phone_number,
-                )
+                // Alert.alert(
+                //   "Thông tin khách hàng",
+                //   "ID: "+ customerInfo?.id + "\nHọ và tên: "+ customerInfo?.fullname +"\nSố điện thoại: " + customerInfo?.phone_number,
+                // )
               }}
             />
           )}
@@ -896,7 +930,13 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
               day={item.day}
               notes={item.notes}
               onPressAccept={()=>updateRequestStatus(item.id, "Accept")}
-              onLongPress={()=>Alert.alert(item.customerId.toString())}
+              onLongPress={()=>{
+                getUserInfo(item.customerId.toString())
+                // Alert.alert(
+                //   "Thông tin khách hàng",
+                //   "ID: "+ customerInfo?.id + "\nHọ và tên: "+ customerInfo?.fullname +"\nSố điện thoại: " + customerInfo?.phone_number,
+                // )
+              }}
             />
           )}
           keyExtractor={item => item.id}
