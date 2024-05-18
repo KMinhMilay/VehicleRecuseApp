@@ -43,8 +43,7 @@ const DATA = [
     xLocation: '123',
     yLocation: '101',
     day: '10/4/2024',
-    note: 'ádfafafaf',
-    
+    notes: 'ádfafafaf',
   },
   {
     id: '2',
@@ -53,7 +52,7 @@ const DATA = [
     xLocation: '123',
     yLocation: '101',
     day: '10/4/2024',
-    note: 'ádfafafaf',
+    notes: 'ádfafafaf',
     
   }
   
@@ -66,7 +65,7 @@ const DATA_2 = [
     xLocation: '123',
     yLocation: '101',
     day: '10/4/2024',
-    note: 'ádfafafaf',
+    notes: 'ádfafafaf',
     
   },
   {
@@ -76,7 +75,7 @@ const DATA_2 = [
     xLocation: '123',
     yLocation: '101',
     day: '10/4/2024',
-    note: 'ádfafafaf',
+    notes: 'ádfafafaf',
     
   }
   
@@ -88,7 +87,13 @@ type ItemProps = {
   xLocation: string;
   yLocation: string;
   day: string;
-  note: string;
+  notes: string;
+  customerId: string;
+}
+type CustomerInfo = {
+  id: string;
+  fullname: string;
+  phone_number: string;
 }
 type ItemProps_Processing = {
   id: string;
@@ -97,7 +102,7 @@ type ItemProps_Processing = {
   xLocation: string;
   yLocation: string;
   day: string;
-  note: string;
+  notes: string;
   onPressDone: () => void;
   onPressCancel: () => void;
   onLongPress: () => void
@@ -109,7 +114,7 @@ type ItemProps_NoProcessing = {
   xLocation: string;
   yLocation: string;
   day: string;
-  note: string;
+  notes: string;
   onPressAccept: () => void;
   onLongPress: () => void
 };
@@ -120,7 +125,7 @@ const Item_Processing = ({
   xLocation,
   yLocation,
   day,
-  note,
+  notes,
   onPressDone,
   onPressCancel,
   onLongPress,
@@ -278,7 +283,7 @@ const Item_NoProcessing = ({
   xLocation,
   yLocation,
   day,
-  note,
+  notes,
   onPressAccept,
   onLongPress,
 }: ItemProps_NoProcessing) => (
@@ -414,93 +419,291 @@ const Item_NoProcessing = ({
 );
 function EngineerScreen({navigation}: any): React.JSX.Element {
   const {id} = useContext(UserContext);
+  // const id = 6;
 
   const [dataProcessing, setDataProcessing] = useState<ItemProps[]>([]);
   const [dataNoProcessing, setDataNoProcessing] = useState<ItemProps[]>([]);
 
+  const [customerInfo, setCustomerInfo] = useState<CustomerInfo>();
+
   const [showListProcessing,setShowListProcessing] = useState(true);
   const [showListNoProcessing,setShowListNoProcessing] = useState(true);
   const [datetime, setDateTime] = React.useState(new Date());
-  const [textDate, setTextDate] = React.useState(
-    new Date().toLocaleDateString(),
-  );
-
-  // const [data, setData] = useState<Props[]>([]);
-  
+  const [textDate, setTextDate] = React.useState('');
+  const [dateFilter, setDateFilter] = useState('');
   const [show, setShow] = React.useState(false);
+  const [vehicleFilter, setVehicleFilter] = useState('');
+  const [vehicleFilterPressed, setVehicleFilterPressed] = useState(false);
+
+  const [orderingType, setOrderingType] = useState('byDate');
 
   useEffect(() => {
+    if (dataProcessing.length > 0) {
+      setShowListProcessing(true);
+
+      //Log dữ liệu, xóa khi hoàn thành app
+      console.log("Đang thực hiện: ");
+      dataProcessing.forEach(element => {
+        console.log(element)
+      });
+      console.log(" ");
+    }
+    else {
+      setShowListProcessing(false);
+
+      //Log dữ liệu, xóa khi hoàn thành app
+      console.log("Chưa thực hiện: ");
+      dataNoProcessing.forEach(element => {
+        console.log(element)
+      });
+      console.log(" ");
+
+    }
+  }, [dataProcessing, dataNoProcessing]);
+  useEffect(() => {
+    setShowListNoProcessing(!showListProcessing)
+  },[showListProcessing]);
+  
+  useEffect(() => {
+    setTimeout(() => {
+      loadData();
+    }, 500);
+  },[dateFilter, vehicleFilter, orderingType])
+
+  useEffect(() => {
+    console.log(customerInfo)
+  },[customerInfo])
+  useEffect(() => {
+    if (textDate != "") {
+      setDateFilter(textDate.split('-').reverse().join('-'))
+    }
+  }, [textDate])
+  useEffect(() => {
+    
+  })
+  const getUserInfo = (id: any) => {
+    try {
+      db.transaction(tx => {
+        tx.executeSql(
+          "SELECT fullname, phone_number, id FROM Accounts WHERE id = ?",
+          [id],
+          (tx, results) => {
+            if (results.rows.length > 0) {
+              setCustomerInfo(results.rows.item(0));
+            }
+          }
+        )
+      })
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const updateRequestStatus = (requestId: any, status: any) => {
+    if (status == "Done"){
+      Alert.alert(
+        'Xác nhận',
+        'Đánh dấu hoàn thành chuyến này?',
+        [
+          {
+            text: 'Hủy',
+            style: 'cancel',
+          },
+          {
+            text: 'OK',
+            onPress: () =>{
+              try {
+                db.transaction((tx) =>{
+                  tx.executeSql(
+                    "UPDATE Requests set status = 'Đã hoàn thành' WHERE id = ?",
+                    [requestId],
+                    (tx, results) => {
+                      if (results.rowsAffected > 0){
+                        Alert.alert('Đánh dấu hoàn thành chuyến thành công!');
+                        loadData();
+                        
+                      }
+                    }
+                  )
+                })
+              }
+              catch (error) {
+                console.log(error);
+              }
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+    }
+    if (status == "Cancel"){
+      Alert.alert(
+        'Xác nhận',
+        'Xác nhận hủy chuyến này?',
+        [
+          {
+            text: 'Hủy',
+            style: 'cancel',
+          },
+          {
+            text: 'OK',
+            onPress: () =>{
+              try {
+                db.transaction((tx) =>{
+                  tx.executeSql(
+                    "UPDATE Requests set status = 'Đã hủy' WHERE id = ?",
+                    [requestId],
+                    (tx, results) => {
+                      if (results.rowsAffected > 0){
+                        Alert.alert('Hủy chuyến thành công!');
+                        loadData();      
+                      }
+                    }
+                  )
+                })
+              }
+              catch (error) {
+                console.log(error);
+              }
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+    }
+    if (status == "Accept"){
+      Alert.alert(
+        'Xác nhận',
+        'Nhận sửa chửa chuyến này?',
+        [
+          {
+            text: 'Hủy',
+            style: 'cancel',
+          },
+          {
+            text: 'OK',
+            onPress: () =>{
+              try {
+                db.transaction((tx) =>{
+                  tx.executeSql(
+                    "UPDATE Requests set status = 'Đang thực hiện', engineer_id = ? WHERE id = ?",
+                    [id, requestId],
+                    (tx, results) => {
+                      if (results.rowsAffected > 0){
+                        Alert.alert('Đã nhận chuyến thành công!');
+                        loadData();
+                        
+                      }
+                    }
+                  )
+                })
+              }
+              catch (error) {
+                console.log(error);
+              }
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+    }
+  }
+
+  const loadData = () => {
     try {
       setDataProcessing([]);
       setDataNoProcessing([]);
 
+      let query = "SELECT Requests.id, is_bookmarked_by_engineer, show_on_engineer, vehicle_name, customer_id, longitude, latitude, status, strftime('%d-%m-%Y', create_at) as created_at, engineer_id, notes from Requests INNER JOIN Vehicles on Requests.vehicle_id = Vehicles.id WHERE"
+      let params: any[] = []
+
+      if (dateFilter != "") {
+        query = query + " create_at = ?"
+        params.push(dateFilter)
+      }
+      if (vehicleFilter != "") {
+        if (dateFilter != "") {
+          query += " AND"
+        }
+        query += " vehicle_name = ?"
+        params.push(vehicleFilter)
+      }
+
+      if (dateFilter != "" || vehicleFilter != "") {
+        query += " AND"
+      }
+      query += " (engineer_id = ? or engineer_id is NULL)"
+      params.push(id)
+
+      if (orderingType == 'byDate') {
+        query += " ORDER by create_at DESC"
+      }
+      if (orderingType == 'byStatus') {
+        query += " ORDER by status ASC"
+      }
+
+      console.log(query, params)
+
       db.transaction(tx => {
         tx.executeSql(
-        "SELECT Requests.id, is_bookmarked_by_engineer, show_on_engineer, vehicle_name, customer_id, longitude, latitude, status, create_at, engineer_id from Requests INNER JOIN Vehicles on Requests.vehicle_id = Vehicles.id WHERE engineer_id = ? or engineer_id is NULL ORDER by is_bookmarked_by_engineer DESC",
-        [id],
+        query,
+        params,
         (tx, results) => {
           let tmpDataProcessing: ItemProps;
           let tmpDataNoProcessing: ItemProps;
           for (let i = 0; i < results.rows.length; i++) {
             if (results.rows.item(i).show_on_engineer) {
-              if (results.rows.item(i).engineer_id == id) {
+              if (results.rows.item(i).engineer_id == id && results.rows.item(i).status == "Đang thực hiện") {
                 tmpDataProcessing = {
                   id: results.rows.item(i).id,
                   vehicle: results.rows.item(i).vehicle_name,
                   xLocation: results.rows.item(i).longitude,
                   yLocation: results.rows.item(i).latitude,
                   status: results.rows.item(i).status,
-                  day: results.rows.item(i).create_at,
-                  note : results.rows.item(i).note,
+                  day: results.rows.item(i).created_at,
+                  notes : results.rows.item(i).notes,
+                  customerId: results.rows.item(i).customer_id
                 }
-
-                // setDataProcessing((dataProcessing) => [
-                //   ...dataProcessing,
-                //   tmpDataProcessing,]);
                 setDataProcessing((dataProcessing) => [
                   ...dataProcessing,
                   tmpDataProcessing,
                 ]);
               } else {
-                tmpDataNoProcessing = {
-                  id: results.rows.item(i).id,
-                  vehicle: results.rows.item(i).vehicle_name,
-                  xLocation: results.rows.item(i).longitude,
-                  yLocation: results.rows.item(i).latitude,
-                  status: results.rows.item(i).status,
-                  day: results.rows.item(i).create_at,
-                  note : results.rows.item(i).note,
+                if (results.rows.item(i).status == "Đang đợi thợ"){
+                  tmpDataNoProcessing = {
+                    id: results.rows.item(i).id,
+                    vehicle: results.rows.item(i).vehicle_name,
+                    xLocation: results.rows.item(i).longitude,
+                    yLocation: results.rows.item(i).latitude,
+                    status: results.rows.item(i).status,
+                    day: results.rows.item(i).created_at,
+                    notes: results.rows.item(i).notes,
+                    customerId: results.rows.item(i).customer_id
+                  }
+                  setDataNoProcessing((dataNoProcessing) => [
+                    ...dataNoProcessing,
+                    tmpDataNoProcessing,
+                  ]);
                 }
-                setDataNoProcessing((dataNoProcessing) => [
-                  ...dataNoProcessing,
-                  tmpDataNoProcessing,
-                ]);
               }
             }
           }
-          console.log(" ")
-          console.log("-------------Data received--------------")
-          dataProcessing.forEach(element => {
-            console.log(element)
-          });
-          console.log(" ")
-          console.log("^^^^^-----processing // no processing-----vvvvv")
-          console.log(" ")
-          dataNoProcessing.forEach(element => {
-            console.log(element)
-          });
-          console.log("-------------End of data-------------->")
-          
-
         });
       })
     } catch (error) {
-      
-    }
-  },[])
 
-  const createData = () => {
-    
+    }
+  }
+
+  const filterVehicle = (vehicle: string) => {
+    if (vehicleFilter == vehicle) {
+      setVehicleFilterPressed(false);
+      setVehicleFilter("");
+    }
+    else {
+      setVehicleFilter(vehicle);
+      setVehicleFilterPressed(true);
+    }
   }
 
   const onChangeDate = ({event, selectedDate}: any) => {
@@ -508,15 +711,22 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
 
     setDateTime(curDate);
     let tempDate = new Date(curDate);
+    let month = tempDate.getMonth() + 1;
+    let date = tempDate.getDate();
+
+    let formattedMonth = month < 10 ? '0' + month.toString() : month.toString();
+    let formattedDate = date < 10 ? '0' + date.toString() : date.toString();
+
     let fDate =
-      tempDate.getDate() +
-      '/' +
-      (tempDate.getMonth() + 1) +
-      '/' +
+      formattedDate +
+      '-' +
+      formattedMonth +
+      '-' +
       tempDate.getFullYear();
-    setTextDate(fDate);
     setShow(!show);
+    setTextDate(fDate);
   };
+
   const showDateTime = () => {
     setShow(true);
   };
@@ -546,9 +756,7 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
             floatingPlaceholder
             readOnly={true}
             label={'Ngày-tháng-năm'}
-            onChangeText={() => {
-              console.log('Text have changed');
-            }}
+            onChangeText={setTextDate}
             value={textDate}
             enableErrors
             validate={['required']}
@@ -573,77 +781,54 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
             
           }}>
             <Text style={{fontSize:16,fontWeight:'bold',color:'black'}}>Phương tiện: </Text>
-          <TouchableOpacity style={{marginHorizontal:2,borderWidth:1,borderRadius:10,width:64,height:32,justifyContent:'center',alignItems:'center'}}>
+          <TouchableOpacity style={[styles.btnFilter, vehicleFilterPressed && vehicleFilter == "Xe máy" && styles.btnSelected]}
+          onPress={() => filterVehicle("Xe máy")}>
             <Text
-              style={{
-                color: 'black',
-                fontSize: 16,
-                fontWeight: 'bold',
-                textAlign: 'center',
-              }}>
+              style={[styles.textUnselected, vehicleFilterPressed && vehicleFilter == "Xe máy" && styles.textSelected]}>
               XE MÁY
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{marginHorizontal:2,borderWidth:1,borderRadius:10,width:64,height:32,justifyContent:'center',alignItems:'center'}}>
+          <TouchableOpacity style={[styles.btnFilter, vehicleFilterPressed && vehicleFilter == "Xe ô tô" && styles.btnSelected]}
+          onPress={() => filterVehicle("Xe ô tô")}>
             <Text
-              style={{
-                color: 'black',
-                fontSize: 16,
-                fontWeight: 'bold',
-                textAlign: 'center',
-              }}>
+              style={[styles.textUnselected, vehicleFilterPressed && vehicleFilter == "Xe ô tô" && styles.textSelected]}>
               XE Ô TÔ
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{marginHorizontal:2,borderWidth:1,borderRadius:10,width:64,height:32,justifyContent:'center',alignItems:'center'}}>
+          <TouchableOpacity style={[styles.btnFilter, vehicleFilterPressed && vehicleFilter == "Xe tải" && styles.btnSelected]}
+          onPress={() => filterVehicle("Xe tải")}>
             <Text
-              style={{
-                color: 'black',
-                fontSize: 16,
-                fontWeight: 'bold',
-                textAlign: 'center',
-              }}>
+              style={[styles.textUnselected, vehicleFilterPressed && vehicleFilter == "Xe tải" && styles.textSelected]}>
               XE TẢI
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{marginHorizontal:2,borderWidth:1,borderRadius:10,width:64,height:32,justifyContent:'center',alignItems:'center'}}>
+          <TouchableOpacity style={[styles.btnFilter, vehicleFilterPressed && vehicleFilter == "Xe đạp" && styles.btnSelected]}
+          onPress={() => filterVehicle("Xe đạp")}>
             <Text
-              style={{
-                color: 'black',
-                fontSize: 16,
-                fontWeight: 'bold',
-                textAlign: 'center',
-              }}>
+              style={[styles.textUnselected, vehicleFilterPressed && vehicleFilter == "Xe đạp" && styles.textSelected]}>
               XE ĐẠP
             </Text>
           </TouchableOpacity>
         </View>
       </View>
       <View style={[styles.flex_top_1, {flexDirection: 'row',paddingTop:30}]}>
-        <TouchableOpacity style={styles.btnFavorites}>
+        <TouchableOpacity style={[[styles.btnOrderUnselected, orderingType == "byDate" && styles.btnSelected]]}
+        onPress={() => setOrderingType("byDate")}>
           <Text
-            style={{
-              color: 'white',
-              fontSize: 16,
-              fontWeight: 'bold',
-              textAlign: 'center',
-            }}>
+            style={[styles.textUnselected, orderingType == "byDate" && styles.textSelected]}>
             SẮP XẾP THEO NGÀY/THÁNG/NĂM
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.btnCurrentLocation}>
+        <TouchableOpacity style={[styles.btnOrderUnselected, orderingType == "byStatus" && styles.btnSelected]}
+        onPress={() => setOrderingType("byStatus")}>
           <Text
-            style={{
-              color: 'black',
-              fontSize: 16,
-              fontWeight: 'bold',
-              textAlign: 'center',
-            }}>
+            style={[styles.textUnselected, orderingType == "byStatus" && styles.textSelected]}>
             SẮP XẾP THEO TÌNH TRẠNG
           </Text>
         </TouchableOpacity>
       </View>
-      <View style={{flex: 0.75, paddingTop: 36}}>
+      {showListProcessing && (
+        <View style={{flex: 0.75, paddingTop: 36}}>
         <View>
         <TouchableOpacity onPress={showFlatListProcessing}>
                         <Text             style={{
@@ -655,11 +840,10 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
           </TouchableOpacity>
         </View>
         {/* type ItemProps = {id: string, vehicle: string, status: string, xLocation:string,yLocation: string,day: string,note:string,bookmark: boolean}; */}
-        {showListProcessing && (
         <FlatList
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
-          data={DATA}
+          data={dataProcessing}
           renderItem={({item}) => (
             <Item_Processing
               id={item.id}
@@ -668,16 +852,25 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
               xLocation={item.xLocation}
               yLocation={item.yLocation}
               day={item.day}
-              note={item.note}
-              onPressDone={()=>console.log("Done")}
-              onPressCancel={()=>console.log("Cancel")}
-              onLongPress={()=>Alert.alert("Details")}
+              notes={item.notes}
+              onPressDone={()=>updateRequestStatus(item.id, "Done")}
+              onPressCancel={()=>updateRequestStatus(item.id, "Cancel")}
+              onLongPress={()=> {
+                getUserInfo(item.customerId.toString())
+                Alert.alert(
+                  "Thông tin khách hàng",
+                  "ID: "+ customerInfo?.id + "\nHọ và tên: "+ customerInfo?.fullname +"\nSố điện thoại: " + customerInfo?.phone_number,
+                )
+              }}
             />
           )}
           keyExtractor={item => item.id}
-        />)}
+        />
       </View>
-      <View style={{flex: 1, paddingTop: 36}}>
+      )}
+      
+      {showListNoProcessing && (
+        <View style={{flex: 1, paddingTop: 36}}>
         <View>
           <TouchableOpacity onPress={showFlatListNoProcessing}>
                         <Text             style={{
@@ -689,11 +882,10 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
           </TouchableOpacity>
         </View>
         {/* type ItemProps = {id: string, vehicle: string, status: string, xLocation:string,yLocation: string,day: string,note:string,bookmark: boolean}; */}
-        {showListNoProcessing && (
         <FlatList
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
-          data={DATA_2}
+          data={dataNoProcessing}
           renderItem={({item}) => (
             <Item_NoProcessing
               id={item.id}
@@ -702,15 +894,16 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
               xLocation={item.xLocation}
               yLocation={item.yLocation}
               day={item.day}
-              note={item.note}
-              onPressAccept={()=>console.log("Accpect")}
-              onLongPress={()=>Alert.alert("Details")}
+              notes={item.notes}
+              onPressAccept={()=>updateRequestStatus(item.id, "Accept")}
+              onLongPress={()=>Alert.alert(item.customerId.toString())}
             />
           )}
           keyExtractor={item => item.id}
         />
-      )}
       </View>
+      )}
+      
 
 
       {show && (
@@ -720,7 +913,9 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
             value={datetime}
             mode={'date'}
             display="spinner"
-            onChange={onChangeDate}
+            onChange={(event, selectedDate) => {
+              onChangeDate({event, selectedDate});
+            }}
           />
         </View>
       )}
@@ -793,7 +988,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     textAlign: 'center',
   },
-  btnCurrentLocation: {
+  btnOrderUnselected: {
     borderRadius: 15,
     width: 160,
     height: 48,
@@ -836,4 +1031,28 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     borderRadius: 10,
   },
+  btnFilter: {
+    marginHorizontal:2,
+    borderWidth:1,
+    borderRadius:10,
+    width:64,
+    height:32,
+    justifyContent:'center',
+    alignItems:'center',
+    backgroundColor:'white',
+    color:'black',
+  },
+  btnSelected: {
+    backgroundColor: 'black',
+    color: 'white',
+  },
+  textUnselected: {
+    color: 'black',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  textSelected: {
+    color: 'white',
+  }
 });
