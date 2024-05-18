@@ -1,4 +1,5 @@
 import {
+  Alert,
   FlatList,
   Image,
   StyleSheet,
@@ -11,6 +12,7 @@ import {Colors, Drawer, TextField} from 'react-native-ui-lib';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { getRequestByIdUser, updateBookmarkRequestCustomer } from '../Controller/RequestController';
 import { UserContext } from '../Contexts/UserContext';
+import { getRequestById } from '../Model/RequestModel';
 
 // const DATA = [
 //   {
@@ -255,6 +257,7 @@ function TripList(): React.JSX.Element {
 
   const {id} = useContext(UserContext)
   const [requests, setRequests] = React.useState<ItemProps[]>([]);
+  const [in4request, setIn4Request] = useState(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -279,7 +282,21 @@ function TripList(): React.JSX.Element {
       console.error('Có lỗi khi cập nhật bookmark yêu cầu:', error);
     }
   };
-  
+
+  // const showInformationRequest = async (itemId: string) => {
+  //   // Hiển thị dữ liệu trong Alert
+  //   const data = await getRequestById(id);
+  //   setIn4Request(data)
+  //   console.log(in4request);
+  //   if (in4request) {
+  //     // Hiển thị thông tin yêu cầu trong Alert
+  //     const requestString = `ID: ${in4request.id}\nVehicle: ${in4request.vehicle_name}\nStatus: ${in4request.status}\nDate: ${new Date(in4request.create_at).toLocaleString()}\nNotes: ${in4request.notes}`;
+  //     Alert.alert('Thông tin yêu cầu', requestString);
+  //   } else {
+  //     Alert.alert('Thông tin yêu cầu', 'Không có dữ liệu');
+  //   }
+  // };
+
   return (
     <View style={styles.container}>
       <View style={[styles.flex_img_back, {borderBottomWidth: 0.5}]}>
@@ -416,7 +433,7 @@ function TripList(): React.JSX.Element {
               is_bookmarked_by_user={item.is_bookmarked_by_user}
               engineer_id={item.engineer_id}
               onPressBookmark={()=>handleBookmarkPress(item.id, item.is_bookmarked_by_user)}
-              onPressRead={()=>console.log("Details")}
+              onPressRead={()=>Alert.alert('Thông tin yêu cầu', `ID: ${item.id}\nPhương tiện: ${item.vehicle_name}\nTình trạng: ${item.status}\nThời gian tạo: ${item.create_at}\nGhi chú: ${item.notes}`)}
             />
             
           )}

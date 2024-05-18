@@ -59,3 +59,29 @@ export const updateBookmarkRequestCustomer = async (id, bookmark) => {
         });
     });
 }
+
+export const getRequestById = async (idRequest) => {       //cái này là lấy thông tin của request theo id của request 
+    const db = await getDBConnection();
+    const query = 'SELECT Requests.*, Vehicles.vehicle_name FROM Requests JOIN Vehicles ON Requests.vehicle_id = Vehicles.id WHERE Requests.id = ?';
+    return new Promise((resolve, reject) => {
+        db.transaction(tx => {
+            tx.executeSql(
+                query,
+                [idRequest],
+                (tx, results) => {
+                    let rows = results.rows;
+                    let data = [];
+
+                    for (let i = 0; i < rows.length; i++) {
+                        data.push(rows.item(i));
+                    }
+
+                    resolve(data);
+                },
+                (tx, error) => {
+                    reject(error);
+                }
+            );
+        });
+    });
+}

@@ -29,3 +29,13 @@ export const updateBookmarkRequestCustomer = async (id, bookmark) => {
     console.error('Có lỗi khi cập nhật bookmark yêu cầu:', error);
   }
 }
+
+export const getRequestById = async (idRequest) => {
+  try {
+    const listRequests = await RequestModel.getRequestById(idRequest);
+    console.log('Lấy thông tin yêu cầu theo id thành công');
+    return listRequests;
+  } catch (error) {
+    console.error('Có lỗi khi lấy thông tin:', error);
+  }
+}
