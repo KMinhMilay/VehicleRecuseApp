@@ -9,7 +9,7 @@ import {
 import React, {useContext, useEffect, useState} from 'react';
 import {Colors, Drawer, TextField} from 'react-native-ui-lib';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { getRequestByIdUser } from '../Controller/RequestController';
+import { getRequestByIdUser, updateBookmarkRequestCustomer } from '../Controller/RequestController';
 import { UserContext } from '../Contexts/UserContext';
 
 // const DATA = [
@@ -266,9 +266,19 @@ function TripList(): React.JSX.Element {
     loadData();
   }, []);
 
-  // function updateBookmark() {
-  //   //if ()
-  // }
+  const handleBookmarkPress = async (itemId: string, currentBookmark: number) => {
+    const newBookmark = currentBookmark === 1 ? 0 : 1;
+    try {
+      await updateBookmarkRequestCustomer(itemId, newBookmark);
+      setRequests((prevRequests) =>
+        prevRequests.map((request) =>
+          request.id === itemId ? { ...request, is_bookmarked_by_user: newBookmark } : request
+        )
+      );
+    } catch (error) {
+      console.error('Có lỗi khi cập nhật bookmark yêu cầu:', error);
+    }
+  };
   
   return (
     <View style={styles.container}>
@@ -405,7 +415,7 @@ function TripList(): React.JSX.Element {
               notes={item.notes}
               is_bookmarked_by_user={item.is_bookmarked_by_user}
               engineer_id={item.engineer_id}
-              onPressBookmark={()=>console.log("Đã thêm bookmark")}
+              onPressBookmark={()=>handleBookmarkPress(item.id, item.is_bookmarked_by_user)}
               onPressRead={()=>console.log("Details")}
             />
             
