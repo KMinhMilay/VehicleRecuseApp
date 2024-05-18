@@ -5,17 +5,73 @@ import {
     StyleSheet,
     TouchableOpacity,
   } from 'react-native';
-  import React, {useState} from 'react';
-  import {View, TextField, Text, Button} from 'react-native-ui-lib';
- 
+import React, {useContext, useEffect, useState} from 'react';
+import {View, TextField, Text, Button} from 'react-native-ui-lib';
+import SQLite from 'react-native-sqlite-storage';
+import md5 from 'md5';
+import { UserContext } from '../Contexts/UserContext';
+  const db = SQLite.openDatabase(
+    {
+        name: 'VehicleRescue',
+        location: 'default',
+    },
+    () => { },
+    error => { console.log(error) }
+  );
+
   function LoginScreen({navigation}: any): React.JSX.Element {
+    const {updateUser,  showUser} = useContext(UserContext);
+
+    const [typedUsername, setTypedUsername] = useState('');
+    const [typedPassword, setTypedPassword] = useState('');
+    const [md5Hash, setMd5Hash] = useState(''); 
     const [hide, setHide] = useState(true);
+
+    useEffect(() => {
+      if (typedPassword.length > 0) {
+        convertToMd5();
+      }
+      else {
+        setMd5Hash('');
+      }
+    }, [typedPassword]);
     const Hide = () => {
       setHide(!hide);
     };
-    const Login = () => {
-      navigation.navigate('HomeScreen');
+  
+    const convertToMd5 = () => { 
+        const hash = md5(typedPassword); 
+        setMd5Hash(hash); 
     };
+
+    const Login = () => {
+      if (typedUsername && typedUsername) {
+        try {
+          db.transaction((tx) => {
+            tx.executeSql(
+              "SELECT * FROM Accounts WHERE username = ? AND password = ?",
+              [typedUsername, md5Hash],
+              (tx, results) => {
+                if (results.rows.length > 0) {
+                  const userData = results.rows.item(0);
+                  updateUser(userData)
+                  navigation.navigate('HomeScreen');
+                }
+                else {
+                  Alert.alert("Lỗi", "Tên đăng nhập hoặc mật khẩu không đúng");
+                }
+              }
+            )
+          })
+        }
+        catch (error) {
+
+        }
+      }
+      else {
+          Alert.alert("Hãy điền đầy đủ tên đăng nhập và mật khẩu");
+      }
+    }
     const BackTo = () => {
       navigation.goBack();
     };
@@ -41,16 +97,12 @@ import {
             placeholder={'Tên đăng nhập'}
             floatingPlaceholder
             label={'Tên đăng nhập'}
-            onChangeText={() => {
-              console.log('Text have changed');
-            }}
+            onChangeText={input => setTypedUsername(input)}
             // value={}
             enableErrors
-            validate={['required', 'email', (value: string) => value.length > 6]}
+            validate={['required']}
             validationMessage={[
               'Field is required',
-              'Email is invalid',
-              'Username is too short',
             ]}
             showCharCounter
             maxLength={30}
@@ -65,13 +117,11 @@ import {
               placeholder={'Mật khẩu'}
               floatingPlaceholder
               label={'Mật khẩu'}
-              onChangeText={() => {
-                console.log('Text have changed');
-              }}
+              onChangeText={input => setTypedPassword(input)}
               // value={}
               enableErrors
-              validate={['required', (value: string) => value.length > 6]}
-              validationMessage={['Field is required', 'Password is too short']}
+              validate={['required']}
+              validationMessage={['Field is required']}
               showCharCounter
               maxLength={30}
               floatingPlaceholderStyle={styles.floatingHolderStyle}

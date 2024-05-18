@@ -5,8 +5,9 @@ import TripListScreen from './Screens/TripListScreen';
 import ServiceScreen from './Screens/ServiceScreen';
 import UserScreen from './Screens/UserScreen';
 import 'react-native-gesture-handler';
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import type {PropsWithChildren} from 'react';
+import { UserContext } from './Contexts/UserContext';
 import {
   Image,
   StyleSheet,
@@ -24,7 +25,11 @@ import { List } from 'react-native-paper';
 const Tab = createBottomTabNavigator();
 
 const Tabs = () => {
-  const [isEngineer,setIsEngineer] = useState(true);
+  const {role} = useContext(UserContext);
+  const [isEngineer,setIsEngineer] = useState(false);
+  useEffect(() => {
+    setIsEngineer(role == 'engineer');
+  },[])
   return (
     <Tab.Navigator
       screenOptions={{
