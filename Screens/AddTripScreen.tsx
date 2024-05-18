@@ -71,8 +71,8 @@ function AddTripScreen({ route, navigation }: any): React.JSX.Element {
     const year = dateString.getFullYear();
     const month = String(dateString.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0 nên cần +1
     const day = String(dateString.getDate()).padStart(2, '0');
-    console.log(`${year}/${month}/${day}`)
-    return `${year}/${month}/${day}`;
+    console.log(`${year}-${month}-${day}`)
+    return `${year}-${month}-${day}`;
   };
 
   function _addTrip() {                   // thêm yêu cầu mới từ người dùng
