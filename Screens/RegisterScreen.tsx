@@ -42,6 +42,7 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
   const [hide, setHide] = useState(false);
   const [hideContainer, setHideContainer] = useState(true);
   const [datetime, setDateTime] = React.useState(new Date());
+  const [textDate, setTextDate] = useState('');
   const [show, setShow] = React.useState(false);
   const [md5Hash, setMd5Hash] = useState('');
 
@@ -59,6 +60,14 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
   useEffect(() => {
     console.log(birthdate);
   }, [birthdate])
+
+  useEffect(() => {
+    setBirthdate(textDate.split('-').reverse().join('-'))
+  }, [textDate])
+  useEffect(() => {
+    console.log(birthdate)
+  },[birthdate])
+
   function Check() {
     setCheck(!check);
   }
@@ -108,15 +117,22 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
 
     setDateTime(curDate);
     let tempDate = new Date(curDate);
+
+    let month = tempDate.getMonth() + 1;
+    let date = tempDate.getDate();
+
+    let formattedMonth = month < 10 ? '0' + month.toString() : month.toString();
+    let formattedDate = date < 10 ? '0' + date.toString() : date.toString();
+
     let fDate =
-      tempDate.getDate() +
-      '/' +
-      (tempDate.getMonth() + 1) +
-      '/' +
+      formattedDate +
+      '-' +
+      formattedMonth +
+      '-' +
       tempDate.getFullYear();
     
     setShow(!show);
-    setBirthdate(fDate);
+    setTextDate(fDate);
   };
   const showDateTime = () => {
     setShow(true);
@@ -240,8 +256,8 @@ function RegisterScreen({navigation}: any): React.JSX.Element {
             floatingPlaceholder
             readOnly={true}
             label={'Ngày-tháng-năm'}
-            onChangeText={setBirthdate}
-            value={birthdate}
+            onChangeText={setTextDate}
+            value={textDate}
             enableErrors
             validate={['required']}
             validationMessage={['Không được để trống']}
