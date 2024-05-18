@@ -113,7 +113,7 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
         setNumberPhone(account.phone_number)
         setBirthday(account.birthdate)
         setEmail(account.email)
-        setPassword(account.password)
+        //setPassword(account.password)
       })
       .catch(error => {
         console.error('Error:', error);
@@ -153,11 +153,11 @@ function UserInfoScreen({ navigation }: any): React.JSX.Element {
       hasError = true;
     }
 
-    if (password.trim() === '') {
-      hasError = true;
-    } else if (password.length <= 8) {
-      hasError = true;
-    }
+    // if (password.trim() === '') {
+    //   hasError = true;
+    // } else if (password.length <= 8) {
+    //   hasError = true;
+    // }
 
     setHasError(hasError);
   };
