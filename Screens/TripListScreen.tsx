@@ -1,4 +1,5 @@
 import {
+  Alert,
   FlatList,
   Image,
   StyleSheet,
@@ -6,90 +7,93 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {Colors, Drawer, TextField} from 'react-native-ui-lib';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { getRequestByIdUser, updateBookmarkRequestCustomer } from '../Controller/RequestController';
+import { UserContext } from '../Contexts/UserContext';
+import { getRequestById } from '../Model/RequestModel';
 
-const DATA = [
-  {
-    id: '1',
-    vehicle: 'Xe Ô Tô',
-    status: 'Đang đợi thợ',
-    xLocation: '123',
-    yLocation: '101',
-    day: '10/4/2024',
-    note: 'ádfafafaf',
-    id_engineer:'1a12',
-    bookmark: false,
-  },
-  {
-    id: '2',
-    vehicle: 'Xe tải',
-    status: 'Đã hoàn thành',
-    xLocation: '123',
-    yLocation: '1211',
-    day: '10/4/2024',
-    note: 'ádfafafaf',
-    id_engineer:'2a12',
-    bookmark: true,
-  },
-  {
-    id: '3',
-    vehicle: 'Xe Đạp',
-    status: 'Hủy',
-    xLocation: '123',
-    yLocation: '101',
-    day: '10/4/2024',
-    note: 'ádfafafaf',
-    id_engineer:'null',
-    bookmark: true,
-  },
-  {
-    id: '4',
-    vehicle: 'Xe máy',
-    status: 'Đang thực hiện',
-    xLocation: '123',
-    yLocation: '101',
-    day: '10/4/2024',
-    note: 'ádfafafaf',
-    id_engineer:'2a12',
-    bookmark: false,
-  },
-  {
-    id: '5',
-    vehicle: 'Xe Ô Tô',
-    status: 'Đã hoàn thành',
-    xLocation: '123',
-    yLocation: '101',
-    day: '10/4/2024',
-    note: 'ádfafafaf',
-    id_engineer:'2a12',
-    bookmark: false,
-  },
-];
+// const DATA = [
+//   {
+//     id: '1',
+//     vehicle: 'Xe Ô Tô',
+//     status: 'Đang đợi thợ',
+//     xLocation: '123',
+//     yLocation: '101',
+//     day: '10/4/2024',
+//     note: 'ádfafafaf',
+//     id_engineer:'1a12',
+//     bookmark: false,
+//   },
+//   {
+//     id: '2',
+//     vehicle: 'Xe tải',
+//     status: 'Đã hoàn thành',
+//     xLocation: '123',
+//     yLocation: '1211',
+//     day: '10/4/2024',
+//     note: 'ádfafafaf',
+//     id_engineer:'2a12',
+//     bookmark: true,
+//   },
+//   {
+//     id: '3',
+//     vehicle: 'Xe Đạp',
+//     status: 'Hủy',
+//     xLocation: '123',
+//     yLocation: '101',
+//     day: '10/4/2024',
+//     note: 'ádfafafaf',
+//     id_engineer:'null',
+//     bookmark: true,
+//   },
+//   {
+//     id: '4',
+//     vehicle: 'Xe máy',
+//     status: 'Đang thực hiện',
+//     xLocation: '123',
+//     yLocation: '101',
+//     day: '10/4/2024',
+//     note: 'ádfafafaf',
+//     id_engineer:'2a12',
+//     bookmark: false,
+//   },
+//   {
+//     id: '5',
+//     vehicle: 'Xe Ô Tô',
+//     status: 'Đã hoàn thành',
+//     xLocation: '123',
+//     yLocation: '101',
+//     day: '10/4/2024',
+//     note: 'ádfafafaf',
+//     id_engineer:'2a12',
+//     bookmark: false,
+//   },
+// ];
 type ItemProps = {
   id: string;
-  vehicle: string;
+  vehicle_name: string;
   status: string;
-  xLocation: string;
-  yLocation: string;
-  day: string;
-  note: string;
-  bookmark: boolean;
-  id_engineer: string;
+  longitude: string;
+  latitude: string;
+  create_at: string;
+  notes: string;
+  is_bookmarked_by_user: number;
+  engineer_id: string;
   onPressBookmark: () => void;
   onPressRead:() => void;
 };
 const Item = ({
   id,
-  vehicle,
+  vehicle_name,
   status,
-  xLocation,
-  yLocation,
-  day,
-  note,
-  bookmark,
-  id_engineer,
+  longitude,
+  latitude,
+  create_at,
+  notes,
+  is_bookmarked_by_user,
+  engineer_id,
   onPressBookmark,
   onPressRead
 }: ItemProps) => (
@@ -149,7 +153,7 @@ const Item = ({
               width: 64,
               height: 32,
             }}>
-            <Text style={{fontSize: 16, textAlign: 'center'}}>{vehicle}</Text>
+            <Text style={{fontSize: 16, textAlign: 'center'}}>{vehicle_name}</Text>
           </View>
           <View style={{ width: 128,justifyContent:'center',alignItems:'center',}}>
             <Text style={{fontSize: 16, textAlign: 'center',fontWeight:'bold'}}>
@@ -163,20 +167,20 @@ const Item = ({
             justifyContent: 'space-between',
             alignItems: 'center',
           }}>
-          <View style={{borderRightWidth: 0.5, width: 96,              justifyContent:'center',
+          <View style={{borderRightWidth: 0.5, width: 96, justifyContent:'center',
               alignItems:'center',}}>
-            <Text style={{fontSize: 16, textAlign: 'center'}}>Ngày: {day}</Text>
+            <Text style={{fontSize: 16, textAlign: 'center'}}>Ngày: {create_at}</Text>
           </View>
-          <View style={{borderRightWidth: 0.5, width: 96,              justifyContent:'center',
+          <View style={{borderRightWidth: 0.5, width: 96, justifyContent:'center',
               alignItems:'center',}}>
             <Text style={{fontSize: 16, textAlign: 'center'}}>
-              X: {xLocation}
+              X: {longitude}
             </Text>
           </View>
           <View style={{width: 96,              justifyContent:'center',
               alignItems:'center',}}>
             <Text style={{fontSize: 16, textAlign: 'center'}}>
-              Y: {yLocation}
+              Y: {latitude}
             </Text>
           </View>
           {/* <View style={{ width: 64, height: 32,justifyContent:'center',alignItems:'center',}}>
@@ -201,7 +205,7 @@ const Item = ({
           }} onPress={onPressBookmark}>
           <Image
             source={
-              bookmark
+              is_bookmarked_by_user === 1
                 ? require('../Assets/Asset/icons8-bookmark-48.png')
                 : require('../Assets/Asset/icons8-unbookmark-48.png')
             }
@@ -250,6 +254,49 @@ function TripList(): React.JSX.Element {
   const showDateTime = () => {
     setShow(true);
   };
+
+  const {id} = useContext(UserContext)
+  const [requests, setRequests] = React.useState<ItemProps[]>([]);
+  const [in4request, setIn4Request] = useState(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await getRequestByIdUser(id);
+      setRequests(data);
+      console.log(requests)
+    };
+
+    loadData();
+  }, []);
+
+  const handleBookmarkPress = async (itemId: string, currentBookmark: number) => {
+    const newBookmark = currentBookmark === 1 ? 0 : 1;
+    try {
+      await updateBookmarkRequestCustomer(itemId, newBookmark);
+      setRequests((prevRequests) =>
+        prevRequests.map((request) =>
+          request.id === itemId ? { ...request, is_bookmarked_by_user: newBookmark } : request
+        )
+      );
+    } catch (error) {
+      console.error('Có lỗi khi cập nhật bookmark yêu cầu:', error);
+    }
+  };
+
+  // const showInformationRequest = async (itemId: string) => {
+  //   // Hiển thị dữ liệu trong Alert
+  //   const data = await getRequestById(id);
+  //   setIn4Request(data)
+  //   console.log(in4request);
+  //   if (in4request) {
+  //     // Hiển thị thông tin yêu cầu trong Alert
+  //     const requestString = `ID: ${in4request.id}\nVehicle: ${in4request.vehicle_name}\nStatus: ${in4request.status}\nDate: ${new Date(in4request.create_at).toLocaleString()}\nNotes: ${in4request.notes}`;
+  //     Alert.alert('Thông tin yêu cầu', requestString);
+  //   } else {
+  //     Alert.alert('Thông tin yêu cầu', 'Không có dữ liệu');
+  //   }
+  // };
+
   return (
     <View style={styles.container}>
       <View style={[styles.flex_img_back, {borderBottomWidth: 0.5}]}>
@@ -373,23 +420,25 @@ function TripList(): React.JSX.Element {
         <FlatList
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
-          data={DATA}
+          data={requests}
           renderItem={({item}) => (
             <Item
               id={item.id}
-              vehicle={item.vehicle}
+              vehicle_name={item.vehicle_name}
               status={item.status}
-              xLocation={item.xLocation}
-              yLocation={item.yLocation}
-              day={item.day}
-              note={item.note}
-              bookmark={item.bookmark}
-              id_engineer={item.id_engineer}
-              onPressBookmark={()=>console.log("Đã thêm bookmark")}
-              onPressRead={()=>console.log("Details")}
+              longitude={item.longitude}
+              latitude={item.latitude}
+              create_at={item.create_at}
+              notes={item.notes}
+              is_bookmarked_by_user={item.is_bookmarked_by_user}
+              engineer_id={item.engineer_id}
+              onPressBookmark={()=>handleBookmarkPress(item.id, item.is_bookmarked_by_user)}
+              onPressRead={()=>Alert.alert('Thông tin yêu cầu', `ID: ${item.id}\nPhương tiện: ${item.vehicle_name}\nTình trạng: ${item.status}\nThời gian tạo: ${item.create_at}\nGhi chú: ${item.notes}`)}
             />
+            
           )}
           keyExtractor={item => item.id}
+          
         />
       </View>
 
