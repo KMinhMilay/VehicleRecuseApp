@@ -21,8 +21,6 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import AccountController from '../Controller/AccountController';
-
-//import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
 import { UserContext } from '../Contexts/UserContext';
 
 function UserInfoScreen({navigation}: any): React.JSX.Element {
