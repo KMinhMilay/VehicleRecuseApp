@@ -505,34 +505,6 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
     }
   }
 
-  // const getUserInfo = async (id: any) => {
-  //   try {
-  //     await new Promise<void>((resolve, reject) => {
-  //       db.transaction(tx => {
-  //         tx.executeSql(
-  //           "SELECT fullname, phone_number, id FROM Accounts WHERE id = ?",
-  //           [id],
-  //           (tx, results) => {
-  //             if (results.rows.length > 0) {
-  //               setCustomerInfo(results.rows.item(0));
-  //               Alert.alert(
-  //                 "Thông tin khách hàng",
-  //                 "ID: "+ customerInfo?.id + "\nHọ và tên: "+ customerInfo?.fullname +"\nSố điện thoại: " + customerInfo?.phone_number,
-  //               )
-  //               resolve();
-  //             }
-  //           },
-  //           (_, error) => {
-  //             reject(error);
-  //           }
-  //         )
-  //       })
-  //     });
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
-
   const updateRequestStatus = (requestId: any, status: any) => {
     if (status == "Done"){
       Alert.alert(
@@ -873,7 +845,6 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
               }}>Đang thực hiện</Text>
           </TouchableOpacity>
         </View>
-        {/* type ItemProps = {id: string, vehicle: string, status: string, xLocation:string,yLocation: string,day: string,note:string,bookmark: boolean}; */}
         <FlatList
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
@@ -891,10 +862,6 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
               onPressCancel={()=>updateRequestStatus(item.id, "Cancel")}
               onLongPress={()=> {
                 getUserInfo(item.customerId.toString())
-                // Alert.alert(
-                //   "Thông tin khách hàng",
-                //   "ID: "+ customerInfo?.id + "\nHọ và tên: "+ customerInfo?.fullname +"\nSố điện thoại: " + customerInfo?.phone_number,
-                // )
               }}
             />
           )}
@@ -915,7 +882,6 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
               }}>Cần chờ được thực hiện</Text>
           </TouchableOpacity>
         </View>
-        {/* type ItemProps = {id: string, vehicle: string, status: string, xLocation:string,yLocation: string,day: string,note:string,bookmark: boolean}; */}
         <FlatList
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
@@ -932,10 +898,6 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
               onPressAccept={()=>updateRequestStatus(item.id, "Accept")}
               onLongPress={()=>{
                 getUserInfo(item.customerId.toString())
-                // Alert.alert(
-                //   "Thông tin khách hàng",
-                //   "ID: "+ customerInfo?.id + "\nHọ và tên: "+ customerInfo?.fullname +"\nSố điện thoại: " + customerInfo?.phone_number,
-                // )
               }}
             />
           )}
