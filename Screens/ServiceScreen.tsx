@@ -1,6 +1,7 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React, { useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View, PermissionsAndroid, Platform, Linking, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
+
 
 
 const questions = [
@@ -49,6 +50,44 @@ const questions = [
 
 function ServiceScreen({ navigation }: any): React.JSX.Element {
 
+  const phoneNumber1 = '0702337630'; // Thay bằng số điện thoại của bạn
+  const phoneNumber2 = '0302342630'; 
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      requestPhonePermission();
+    }
+  }, []);
+  const requestPhonePermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CALL_PHONE,
+        {
+          title: 'Phone Call Service Permission',
+          message: 'This app needs access to your phone calls to make a call.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        }
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('You can use the phone call');
+      } else {
+        console.log('Phone call permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+  const makeCallService = () => {
+    let phoneNumberUrl = `tel:${phoneNumber1}`;
+    Linking.openURL(phoneNumberUrl)
+      .catch(err => console.error('Error:', err));
+  };
+  const makeCallJob = () => {
+    let phoneNumberUrl = `tel:${phoneNumber2}`;
+    Linking.openURL(phoneNumberUrl)
+      .catch(err => console.error('Error:', err));
+  };
 
   const QuestionItemView = ({ question, answer }: any) => {
     const [hide, setHide] = useState(false);
@@ -60,7 +99,7 @@ function ServiceScreen({ navigation }: any): React.JSX.Element {
         </TouchableOpacity>
         {hideContent && (
           <View style={styles.containerContent}>
-            <Text style={{ fontSize: 20 }}>
+            <Text style={{ fontSize: 20 ,color:'white'}}>
               {answer}
             </Text>
           </View>
@@ -71,7 +110,32 @@ function ServiceScreen({ navigation }: any): React.JSX.Element {
 
   return (
     <ScrollView style={styles.containerService}>
-      <View>
+      <View style={{justifyContent:'center',alignItems:'center',flexDirection:"row"}}>
+      <TouchableOpacity style={styles.btnCall} onPress={makeCallService}>
+            <Text
+              style={{
+                color: 'black',
+                fontSize: 18,
+                fontWeight: 'bold',
+                textAlign:'center'
+              }}>
+                SỐ ĐT HỖ TRỢ DỊCH VỤ
+            </Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.btnCall} onPress={makeCallJob}>
+            <Text
+              style={{
+                color: 'black',
+                fontSize: 18,
+                fontWeight: 'bold',
+                textAlign:'center'
+              }}>
+                SỐ ĐT HỖ TRỢ ĐĂNG KÍ 
+            </Text>
+        </TouchableOpacity>
+      </View>
+      <View >
+        <Text style={{fontSize:16,fontWeight:"bold",color:'black',marginVertical:8}}>Câu hỏi thường gặp</Text>
         {questions.map(item => (
           <QuestionItemView {...item} />
         ))
@@ -107,17 +171,30 @@ const styles = StyleSheet.create({
   },
   containerContent: {
 
-    backgroundColor: 'red',
+    backgroundColor: 'black',
     padding: 16,
     fontSize: 1,
     textAlign: 'center',
-    width: 312,
+    width: 300,
     height: 288,
-
+    borderRadius:15
+    
   },
   title: {
     color: 'black',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  btnCall: {
+    borderRadius: 15,
+    width: 128,
+    height: 64,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 10,
+    borderWidth:2,
+    marginHorizontal:8
+    
   },
 });
