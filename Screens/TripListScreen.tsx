@@ -10,9 +10,8 @@ import {
 import React, {useContext, useEffect, useState} from 'react';
 import {Colors, Drawer, TextField} from 'react-native-ui-lib';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { getRequestByIdUser, updateBookmarkRequestCustomer } from '../Controller/RequestController';
+import { updateBookmarkRequestCustomer, getRequestFilter } from '../Controller/RequestController';
 import { UserContext } from '../Contexts/UserContext';
-import { getRequestById } from '../Model/RequestModel';
 
 // const DATA = [
 //   {
@@ -234,22 +233,37 @@ function TripList(): React.JSX.Element {
   );
   const [bookmark,setBookmark] = useState(true);
   const [show, setShow] = React.useState(false);
-  const clickBookmark = () => {
-    setBookmark(!bookmark);
-  }
+
+  const [dateFilter, setDateFilter] = useState('');
+
+  const [vehicleFilter, setVehicleFilter] = useState('');
+  const [vehicleFilterPressed, setVehicleFilterPressed] = useState(false);
+  
+
+  const [orderingType, setOrderingType] = useState('byDate');
+
+  // const clickBookmark = () => {
+  //   setBookmark(!bookmark);
+  // }
   const onChangeDate = ({event, selectedDate}: any) => {
     const curDate = selectedDate || datetime;
 
     setDateTime(curDate);
     let tempDate = new Date(curDate);
+    let month = tempDate.getMonth() + 1;
+    let date = tempDate.getDate();
+
+    let formattedMonth = month < 10 ? '0' + month.toString() : month.toString();
+    let formattedDate = date < 10 ? '0' + date.toString() : date.toString();
+
     let fDate =
-      tempDate.getDate() +
-      '/' +
-      (tempDate.getMonth() + 1) +
-      '/' +
+      formattedDate +
+      '-' +
+      formattedMonth +
+      '-' +
       tempDate.getFullYear();
-    setTextDate(fDate);
     setShow(!show);
+    setTextDate(fDate);
   };
   const showDateTime = () => {
     setShow(true);
@@ -257,17 +271,24 @@ function TripList(): React.JSX.Element {
 
   const {id} = useContext(UserContext)
   const [requests, setRequests] = React.useState<ItemProps[]>([]);
-  const [in4request, setIn4Request] = useState(null);
 
   useEffect(() => {
-    const loadData = async () => {
-      const data = await getRequestByIdUser(id);
-      setRequests(data);
-      console.log(requests)
+    const fetchData = async () => {
+      try {
+        const result = await getRequestFilter(id, dateFilter, vehicleFilter, orderingType);
+        setRequests(result);
+      } catch (error) {
+        console.error("Error loading data: ", error);
+      }
     };
+    fetchData();
+  }, [id, dateFilter, vehicleFilter, orderingType]);
 
-    loadData();
-  }, []);
+  // useEffect(() => {
+  //   if (textDate != "") {
+  //     setDateFilter(textDate.split('-').reverse().join('-'))
+  //   }
+  // }, [textDate])
 
   const handleBookmarkPress = async (itemId: string, currentBookmark: number) => {
     const newBookmark = currentBookmark === 1 ? 0 : 1;
@@ -283,6 +304,18 @@ function TripList(): React.JSX.Element {
     }
   };
 
+  
+
+  const filterVehicle = (vehicle: string) => {
+    if (vehicleFilter == vehicle) {
+      setVehicleFilterPressed(false);
+      setVehicleFilter("");
+    }
+    else {
+      setVehicleFilter(vehicle);
+      setVehicleFilterPressed(true);
+    }
+  }
   // const showInformationRequest = async (itemId: string) => {
   //   // Hiển thị dữ liệu trong Alert
   //   const data = await getRequestById(id);
@@ -317,9 +350,7 @@ function TripList(): React.JSX.Element {
             floatingPlaceholder
             readOnly={true}
             label={'Ngày-tháng-năm'}
-            onChangeText={() => {
-              console.log('Text have changed');
-            }}
+            onChangeText={setTextDate}
             value={textDate}
             enableErrors
             validate={['required']}
@@ -344,47 +375,31 @@ function TripList(): React.JSX.Element {
             
           }}>
             <Text style={{fontSize:16,fontWeight:'bold',color:'black'}}>Phương tiện: </Text>
-          <TouchableOpacity style={{marginHorizontal:2,borderWidth:1,borderRadius:10,width:64,height:32,justifyContent:'center',alignItems:'center'}}>
+            <TouchableOpacity style={[styles.btnFilter, vehicleFilterPressed && vehicleFilter == "Xe máy" && styles.btnSelected]}
+          onPress={() => filterVehicle("Xe máy")}>
             <Text
-              style={{
-                color: 'black',
-                fontSize: 16,
-                fontWeight: 'bold',
-                textAlign: 'center',
-              }}>
+              style={[styles.textUnselected, vehicleFilterPressed && vehicleFilter == "Xe máy" && styles.textSelected]}>
               XE MÁY
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{marginHorizontal:2,borderWidth:1,borderRadius:10,width:64,height:32,justifyContent:'center',alignItems:'center'}}>
+          <TouchableOpacity style={[styles.btnFilter, vehicleFilterPressed && vehicleFilter == "Xe ô tô" && styles.btnSelected]}
+          onPress={() => filterVehicle("Xe ô tô")}>
             <Text
-              style={{
-                color: 'black',
-                fontSize: 16,
-                fontWeight: 'bold',
-                textAlign: 'center',
-              }}>
+              style={[styles.textUnselected, vehicleFilterPressed && vehicleFilter == "Xe ô tô" && styles.textSelected]}>
               XE Ô TÔ
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{marginHorizontal:2,borderWidth:1,borderRadius:10,width:64,height:32,justifyContent:'center',alignItems:'center'}}>
+          <TouchableOpacity style={[styles.btnFilter, vehicleFilterPressed && vehicleFilter == "Xe tải" && styles.btnSelected]}
+          onPress={() => filterVehicle("Xe tải")}>
             <Text
-              style={{
-                color: 'black',
-                fontSize: 16,
-                fontWeight: 'bold',
-                textAlign: 'center',
-              }}>
+              style={[styles.textUnselected, vehicleFilterPressed && vehicleFilter == "Xe tải" && styles.textSelected]}>
               XE TẢI
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{marginHorizontal:2,borderWidth:1,borderRadius:10,width:64,height:32,justifyContent:'center',alignItems:'center'}}>
+          <TouchableOpacity style={[styles.btnFilter, vehicleFilterPressed && vehicleFilter == "Xe đạp" && styles.btnSelected]}
+          onPress={() => filterVehicle("Xe đạp")}>
             <Text
-              style={{
-                color: 'black',
-                fontSize: 16,
-                fontWeight: 'bold',
-                textAlign: 'center',
-              }}>
+              style={[styles.textUnselected, vehicleFilterPressed && vehicleFilter == "Xe đạp" && styles.textSelected]}>
               XE ĐẠP
             </Text>
           </TouchableOpacity>
@@ -392,25 +407,17 @@ function TripList(): React.JSX.Element {
       </View>
       
       <View style={[styles.flex_top_1, {flexDirection: 'row',paddingTop:24}]}>
-        <TouchableOpacity style={styles.btnFavorites}>
+      <TouchableOpacity style={[[styles.btnOrderUnselected, orderingType == "byDate" && styles.btnSelected]]}
+        onPress={() => setOrderingType("byDate")}>
           <Text
-            style={{
-              color: 'white',
-              fontSize: 16,
-              fontWeight: 'bold',
-              textAlign: 'center',
-            }}>
+            style={[styles.textUnselected, orderingType == "byDate" && styles.textSelected]}>
             SẮP XẾP THEO NGÀY/THÁNG/NĂM
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.btnCurrentLocation}>
+        <TouchableOpacity style={[styles.btnOrderUnselected, orderingType == "byStatus" && styles.btnSelected]}
+        onPress={() => setOrderingType("byStatus")}>
           <Text
-            style={{
-              color: 'black',
-              fontSize: 16,
-              fontWeight: 'bold',
-              textAlign: 'center',
-            }}>
+            style={[styles.textUnselected, orderingType == "byStatus" && styles.textSelected]}>
             SẮP XẾP THEO TÌNH TRẠNG
           </Text>
         </TouchableOpacity>
@@ -449,7 +456,9 @@ function TripList(): React.JSX.Element {
             value={datetime}
             mode={'date'}
             display="spinner"
-            onChange={onChangeDate}
+            onChange={(event, selectedDate) => {
+              onChangeDate({event, selectedDate});
+            }}
           />
         </View>
       )}
@@ -564,5 +573,41 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     marginHorizontal: 16,
     borderRadius: 10,
+  },
+  btnFilter: {
+    marginHorizontal:2,
+    borderWidth:1,
+    borderRadius:10,
+    width:64,
+    height:32,
+    justifyContent:'center',
+    alignItems:'center',
+    backgroundColor:'white',
+    color:'black',
+  },
+  btnSelected: {
+    backgroundColor: 'black',
+    color: 'white',
+  },
+  textUnselected: {
+    color: 'black',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  textSelected: {
+    color: 'white',
+  },
+  btnOrderUnselected: {
+    borderRadius: 15,
+    width: 160,
+    height: 48,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 10,
+    marginHorizontal: 16,
+    textAlign: 'center',
+    borderWidth: 1,
   },
 });
