@@ -25,6 +25,8 @@ import _ from 'lodash';
 import { List } from 'react-native-paper';
 import SQLite from 'react-native-sqlite-storage';
 import { UserContext } from '../Contexts/UserContext';
+import openMap from 'react-native-open-maps';
+
 
 const db = SQLite.openDatabase(
   {
@@ -35,51 +37,6 @@ const db = SQLite.openDatabase(
   error => { console.log(error) }
 );
 
-const DATA = [
-  {
-    id: '1',
-    vehicle: 'Xe Ô Tô',
-    status: 'Đang thực hiện',
-    xLocation: '123',
-    yLocation: '101',
-    day: '10/4/2024',
-    notes: 'ádfafafaf',
-  },
-  {
-    id: '2',
-    vehicle: 'Xe Ô Tô',
-    status: 'Đang thực hiện',
-    xLocation: '123',
-    yLocation: '101',
-    day: '10/4/2024',
-    notes: 'ádfafafaf',
-    
-  }
-  
-];
-const DATA_2 = [
-  {
-    id: '2',
-    vehicle: 'Xe máy',
-    status: 'Đang đợi thợ',
-    xLocation: '123',
-    yLocation: '101',
-    day: '10/4/2024',
-    notes: 'ádfafafaf',
-    
-  },
-  {
-    id: '3',
-    vehicle: 'Xe máy',
-    status: 'Đang đợi thợ',
-    xLocation: '123',
-    yLocation: '101',
-    day: '10/4/2024',
-    notes: 'ádfafafaf',
-    
-  }
-  
-]
 type ItemProps = {
   id: string;
   vehicle: string;
@@ -418,11 +375,12 @@ const Item_NoProcessing = ({
   </Drawer>
 );
 function EngineerScreen({navigation}: any): React.JSX.Element {
-  const {id} = useContext(UserContext);
-  // const id = 6;
+  const {userData, renewEngineerLocation} = useContext(UserContext);
 
   const [dataProcessing, setDataProcessing] = useState<ItemProps[]>([]);
   const [dataNoProcessing, setDataNoProcessing] = useState<ItemProps[]>([]);
+
+  const [isOnActiveRequest, setIsOnActiveRequest] = useState(false);
 
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>();
 
@@ -435,7 +393,7 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
   const [vehicleFilter, setVehicleFilter] = useState('');
   const [vehicleFilterPressed, setVehicleFilterPressed] = useState(false);
 
-  const [orderingType, setOrderingType] = useState('byDate');
+  const [orderingType, setOrderingType] = useState('DESC');
 
   useEffect(() => {
     if (dataProcessing.length > 0) {
@@ -465,9 +423,11 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
   },[showListProcessing]);
   
   useEffect(() => {
+    
     setTimeout(() => {
+      checkActiveRequest();
       loadData();
-    }, 500);
+    }, 250);
   },[dateFilter, vehicleFilter, orderingType])
 
   useEffect(() => {
@@ -476,6 +436,12 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
       Alert.alert(
         "Thông tin khách hàng",
         "ID: "+ customerInfo?.id + "\nHọ và tên: "+ customerInfo?.fullname +"\nSố điện thoại: " + customerInfo?.phone_number,
+        [{
+          text: 'Đóng',
+          onPress: () => {
+            setCustomerInfo(undefined)
+          }
+        }]
       )
     }
   },[customerInfo])
@@ -484,9 +450,6 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
       setDateFilter(textDate.split('-').reverse().join('-'))
     }
   }, [textDate])
-  useEffect(() => {
-    
-  })
   const getUserInfo = (id: any) => {
     try {
       db.transaction(tx => {
@@ -505,7 +468,7 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
     }
   }
 
-  const updateRequestStatus = (requestId: any, status: any) => {
+  const updateRequestStatus = (request: ItemProps, status: any) => {
     if (status == "Done"){
       Alert.alert(
         'Xác nhận',
@@ -522,12 +485,33 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
                 db.transaction((tx) =>{
                   tx.executeSql(
                     "UPDATE Requests set status = 'Đã hoàn thành' WHERE id = ?",
-                    [requestId],
+                    [request.id],
                     (tx, results) => {
                       if (results.rowsAffected > 0){
-                        Alert.alert('Đánh dấu hoàn thành chuyến thành công!');
-                        loadData();
-                        
+                        db.transaction((tx) =>{
+                          tx.executeSql(
+                            "UPDATE Accounts set current_longitude = ?, current_latitude = ? WHERE id = ?",
+                            [request.xLocation, request.yLocation, userData.id],
+                            (tx, results2) => {
+                              if (results2.rowsAffected > 0){
+                                RenewEngineerData();
+                                Alert.alert(
+                                  'Thông báo',
+                                  'Đánh dấu hoàn thành chuyến thành công!',
+                                  [
+                                    {
+                                      text: 'Đóng',
+                                      onPress: () => {
+                                        checkActiveRequest();
+                                        loadData();
+                                      }
+                                    }
+                                  ]
+                                );
+                              }
+                            }
+                          )
+                        })
                       }
                     }
                   )
@@ -558,7 +542,7 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
                 db.transaction((tx) =>{
                   tx.executeSql(
                     "UPDATE Requests set status = 'Đã hủy' WHERE id = ?",
-                    [requestId],
+                    [request.id],
                     (tx, results) => {
                       if (results.rowsAffected > 0){
                         Alert.alert('Hủy chuyến thành công!');
@@ -593,7 +577,7 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
                 db.transaction((tx) =>{
                   tx.executeSql(
                     "UPDATE Requests set status = 'Đang thực hiện', engineer_id = ? WHERE id = ?",
-                    [id, requestId],
+                    [userData.id, request.id],
                     (tx, results) => {
                       if (results.rowsAffected > 0){
                         Alert.alert('Đã nhận chuyến thành công!');
@@ -614,12 +598,34 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
       );
     }
   }
+  const RenewEngineerData = () => {
+    try {
+      db.transaction((tx) => {
+        tx.executeSql(
+          "SELECT current_longitude, current_latitude FROM Accounts WHERE id = ?",
+          [userData.id],
+          (tx, results) => {
+            if (results.rows.length > 0) {
+              const coordinates = results.rows.item(0);
+              renewEngineerLocation(coordinates)
+
+            }
+            else {
+              console.log("Không thể lấy thông tin mới nhất của người dùng")
+            }
+          }
+        )
+      })
+    }
+    catch (error) {
+
+    }
+  }
 
   const loadData = () => {
     try {
       setDataProcessing([]);
       setDataNoProcessing([]);
-
       let query = "SELECT Requests.id, is_bookmarked_by_engineer, show_on_engineer, vehicle_name, customer_id, longitude, latitude, status, strftime('%d-%m-%Y', create_at) as created_at, engineer_id, notes from Requests INNER JOIN Vehicles on Requests.vehicle_id = Vehicles.id WHERE"
       let params: any[] = []
 
@@ -639,16 +645,14 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
         query += " AND"
       }
       query += " (engineer_id = ? or engineer_id is NULL)"
-      params.push(id)
+      params.push(userData.id)
 
-      if (orderingType == 'byDate') {
+      if (orderingType == 'DESC') {
         query += " ORDER by create_at DESC"
       }
-      if (orderingType == 'byStatus') {
-        query += " ORDER by status ASC"
+      if (orderingType == 'ASC') {
+        query += " ORDER by create_at ASC"
       }
-
-      console.log(query, params)
 
       db.transaction(tx => {
         tx.executeSql(
@@ -658,39 +662,37 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
           let tmpDataProcessing: ItemProps;
           let tmpDataNoProcessing: ItemProps;
           for (let i = 0; i < results.rows.length; i++) {
-            if (results.rows.item(i).show_on_engineer) {
-              if (results.rows.item(i).engineer_id == id && results.rows.item(i).status == "Đang thực hiện") {
-                tmpDataProcessing = {
+            if (results.rows.item(i).engineer_id == userData.id && results.rows.item(i).status == "Đang thực hiện") {
+              tmpDataProcessing = {
+                id: results.rows.item(i).id,
+                vehicle: results.rows.item(i).vehicle_name,
+                xLocation: results.rows.item(i).longitude,
+                yLocation: results.rows.item(i).latitude,
+                status: results.rows.item(i).status,
+                day: results.rows.item(i).created_at,
+                notes : results.rows.item(i).notes,
+                customerId: results.rows.item(i).customer_id
+              }
+              setDataProcessing((dataProcessing) => [
+                ...dataProcessing,
+                tmpDataProcessing,
+              ]);
+            } else {
+              if (results.rows.item(i).status == "Đang đợi thợ"){
+                tmpDataNoProcessing = {
                   id: results.rows.item(i).id,
                   vehicle: results.rows.item(i).vehicle_name,
                   xLocation: results.rows.item(i).longitude,
                   yLocation: results.rows.item(i).latitude,
                   status: results.rows.item(i).status,
                   day: results.rows.item(i).created_at,
-                  notes : results.rows.item(i).notes,
+                  notes: results.rows.item(i).notes,
                   customerId: results.rows.item(i).customer_id
                 }
-                setDataProcessing((dataProcessing) => [
-                  ...dataProcessing,
-                  tmpDataProcessing,
+                setDataNoProcessing((dataNoProcessing) => [
+                  ...dataNoProcessing,
+                  tmpDataNoProcessing,
                 ]);
-              } else {
-                if (results.rows.item(i).status == "Đang đợi thợ"){
-                  tmpDataNoProcessing = {
-                    id: results.rows.item(i).id,
-                    vehicle: results.rows.item(i).vehicle_name,
-                    xLocation: results.rows.item(i).longitude,
-                    yLocation: results.rows.item(i).latitude,
-                    status: results.rows.item(i).status,
-                    day: results.rows.item(i).created_at,
-                    notes: results.rows.item(i).notes,
-                    customerId: results.rows.item(i).customer_id
-                  }
-                  setDataNoProcessing((dataNoProcessing) => [
-                    ...dataNoProcessing,
-                    tmpDataNoProcessing,
-                  ]);
-                }
               }
             }
           }
@@ -701,6 +703,37 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
     }
   }
 
+//-------------------------
+  const checkActiveRequest = () => {
+    try {
+      setIsOnActiveRequest(false)
+      db.transaction(tx => {
+        tx.executeSql(
+          "SELECT id FROM Requests WHERE engineer_id = ? and status = 'Đang thực hiện'",
+          [userData.id],
+          (tx, results) => {
+            if (results.rows.length > 0) {
+              setIsOnActiveRequest(true)
+            }
+            else {
+              setIsOnActiveRequest(false)
+            }
+          }
+        )
+      })
+    } catch (error) {
+      
+    }
+  }
+
+  const changeDisplayOrder = (orderType: string) => {
+    if (orderingType == orderType){
+      setOrderingType("ASC");
+    }
+    else {
+      setOrderingType(orderType);
+    }
+  }
   const filterVehicle = (vehicle: string) => {
     if (vehicleFilter == vehicle) {
       setVehicleFilterPressed(false);
@@ -710,6 +743,11 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
       setVehicleFilter(vehicle);
       setVehicleFilterPressed(true);
     }
+  }
+
+  const openCurrentLocationOnMap = () => {
+    openMap({ latitude: userData.current_latitude, longitude: userData.current_longitude })
+    // console.log(userData)
   }
 
   const onChangeDate = ({event, selectedDate}: any) => {
@@ -818,22 +856,22 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
         </View>
       </View>
       <View style={[styles.flex_top_1, {flexDirection: 'row',paddingTop:30}]}>
-        <TouchableOpacity style={[[styles.btnOrderUnselected, orderingType == "byDate" && styles.btnSelected]]}
-        onPress={() => setOrderingType("byDate")}>
+        <TouchableOpacity style={[[styles.btnOrderUnselected, orderingType == "DESC" && styles.btnSelected]]}
+        onPress={() => changeDisplayOrder("DESC")}>
           <Text
-            style={[styles.textUnselected, orderingType == "byDate" && styles.textSelected]}>
-            SẮP XẾP THEO NGÀY/THÁNG/NĂM
+            style={[styles.textUnselected, orderingType == "DESC" && styles.textSelected]}>
+            {orderingType == "DESC" ? "SẮP XẾP MỚI NHẤT" : "SẮP XẾP CŨ NHẤT"}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.btnOrderUnselected, orderingType == "byStatus" && styles.btnSelected]}
-        onPress={() => setOrderingType("byStatus")}>
+        onPress={() => openCurrentLocationOnMap()}>
           <Text
-            style={[styles.textUnselected, orderingType == "byStatus" && styles.textSelected]}>
-            SẮP XẾP THEO TÌNH TRẠNG
+            style={[styles.textUnselected]}>
+            MỞ VỊ TRÍ CỦA BẠN TRÊN BẢN ĐỒ
           </Text>
         </TouchableOpacity>
       </View>
-      {showListProcessing && (
+      {isOnActiveRequest && (
         <View style={{flex: 0.75, paddingTop: 36}}>
         <View>
         <TouchableOpacity onPress={showFlatListProcessing}>
@@ -858,8 +896,8 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
               yLocation={item.yLocation}
               day={item.day}
               notes={item.notes}
-              onPressDone={()=>updateRequestStatus(item.id, "Done")}
-              onPressCancel={()=>updateRequestStatus(item.id, "Cancel")}
+              onPressDone={()=>updateRequestStatus(item, "Done")}
+              onPressCancel={()=>updateRequestStatus(item, "Cancel")}
               onLongPress={()=> {
                 getUserInfo(item.customerId.toString())
               }}
@@ -870,7 +908,7 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
       </View>
       )}
       
-      {showListNoProcessing && (
+      {!isOnActiveRequest && (
         <View style={{flex: 1, paddingTop: 36}}>
         <View>
           <TouchableOpacity onPress={showFlatListNoProcessing}>
@@ -895,7 +933,7 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
               yLocation={item.yLocation}
               day={item.day}
               notes={item.notes}
-              onPressAccept={()=>updateRequestStatus(item.id, "Accept")}
+              onPressAccept={()=>updateRequestStatus(item, "Accept")}
               onLongPress={()=>{
                 getUserInfo(item.customerId.toString())
               }}
