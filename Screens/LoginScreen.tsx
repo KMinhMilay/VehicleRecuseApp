@@ -49,7 +49,7 @@ import { UserContext } from '../Contexts/UserContext';
         try {
           db.transaction((tx) => {
             tx.executeSql(
-              "SELECT * FROM Accounts WHERE username = ? AND password = ?",
+              "SELECT id, username, fullname, phone_number, birthdate, email, role, current_longitude, current_latitude FROM Accounts WHERE username = ? AND password = ?",
               [typedUsername, md5Hash],
               (tx, results) => {
                 if (results.rows.length > 0) {
