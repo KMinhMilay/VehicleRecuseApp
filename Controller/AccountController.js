@@ -1,4 +1,37 @@
-import AccountModel from "../Model/AccountModel";
+import * as AccountModel from '../Model/AccountModel'
+
+
+export const getAccountById = async (idUser) => {
+  try {
+    const listRequests = await AccountModel.getAccountById(idUser);
+    console.log('Lấy tài khoản theo id thành công');
+    return listRequests;
+  } catch (error) {
+    console.error('Có lỗi khi lấy tài khoản:', error);
+  }
+}
+
+export const updateAccount = async (idUser) => {
+  try {
+    const listRequests = await AccountModel.updateAccount(idUser);
+    console.log('cập nhật thành công');
+    return listRequests;
+  } catch (error) {
+    console.error('Có lỗi khi lấy yêu cầu:', error);
+  }
+}
+
+export const updateAccountNoPassWord = async (idUser) => {
+  try {
+    const listRequests = await AccountModel.updateAccountNoPassWord(idUser);
+    console.log('cập nhật thành công');
+    return listRequests;
+  } catch (error) {
+    console.error('Có lỗi khi lấy yêu cầu:', error);
+  }
+}
+
+
 
 class AccountController {
     constructor(databaseName) {
