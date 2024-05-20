@@ -24,6 +24,8 @@ import AccountController from '../Controller/AccountController';
 import { UserContext } from '../Contexts/UserContext';
 
 function UserInfoScreen({navigation}: any): React.JSX.Element {
+  const { id } = useContext(UserContext)
+
   const {updateUser, clearUserData} = useContext(UserContext);
 
   const [check, setCheck] = useState(false);
@@ -51,7 +53,7 @@ function UserInfoScreen({navigation}: any): React.JSX.Element {
       birthdate: birthdate,
       email: email,
       password: password,
-      id: 1, // Thay bằng id của người dùng đang đăng nhập
+      id: id, // Thay bằng id của người dùng đang đăng nhập
     })
       .then(success => {
         if (success) {
@@ -111,7 +113,7 @@ function UserInfoScreen({navigation}: any): React.JSX.Element {
   }, []);
   
   const loadInfoUser = () => {
-    controller.getAccountById(1) // Ngay đây sẽ thay thế bằng id của người đăng nhập vào
+    controller.getAccountById(id) // Ngay đây sẽ thay thế bằng id của người đăng nhập vào
       .then(account => {
         setFullname(account.fullname)
         setUsername(account.username)
