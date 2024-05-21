@@ -242,7 +242,7 @@ function AddTripScreen({ route, navigation }: any): React.JSX.Element {
                 fontSize: 18,
                 fontWeight: 'bold',
               }}>
-              TÌM CHUYẾN
+                GỬI YÊU CẦU
             </Text>
           </TouchableOpacity>
         </View>

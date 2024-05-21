@@ -2,6 +2,7 @@ import {
   Alert,
   FlatList,
   Image,
+  RefreshControl,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -238,7 +239,8 @@ function TripList(): React.JSX.Element {
 
   const [vehicleFilter, setVehicleFilter] = useState('');
   const [vehicleFilterPressed, setVehicleFilterPressed] = useState(false);
-  
+  const [refreshControl, setRefreshControl] = useState(false);
+
 
   const [orderingType, setOrderingType] = useState('byDate');
 
@@ -444,7 +446,18 @@ function TripList(): React.JSX.Element {
             />
             
           )}
+          refreshControl={
+            <RefreshControl refreshing={refreshControl} onRefresh={() => {
+              getRequestFilter(id, dateFilter, vehicleFilter, orderingType)
+              
+              setTimeout(() => {
+                setRefreshControl(false);
+              }, 500)
+
+            }} />
+          }
           keyExtractor={item => item.id}
+          
           
         />
       </View>

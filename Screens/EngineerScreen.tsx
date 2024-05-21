@@ -2,6 +2,7 @@ import {
   Alert,
   FlatList,
   Image,
+  RefreshControl,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -392,6 +393,8 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
   const [show, setShow] = React.useState(false);
   const [vehicleFilter, setVehicleFilter] = useState('');
   const [vehicleFilterPressed, setVehicleFilterPressed] = useState(false);
+  const [refreshControl, setRefreshControl] = useState(false);
+  const [pull, setPull] = useState(false);
 
   const [orderingType, setOrderingType] = useState('DESC');
 
@@ -874,7 +877,7 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
           </TouchableOpacity>
         </View>
       </View>
-      <View style={[styles.flex_top_1, {flexDirection: 'row',paddingTop:30}]}>
+      <View style={[styles.flex_top_1, {flexDirection: 'row',}]}>
         <TouchableOpacity style={[[styles.btnOrderUnselected, orderingType == "DESC" && styles.btnSelected]]}
         onPress={() => changeDisplayOrder("DESC")}>
           <Text
@@ -891,7 +894,7 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
         </TouchableOpacity>
       </View>
       {isOnActiveRequest && (
-        <View style={{flex: 0.75, paddingTop: 36}}>
+        <View style={{flex: 0.75}}>
         <View>
         <TouchableOpacity onPress={showFlatListProcessing}>
                         <Text             style={{
@@ -920,15 +923,26 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
               onLongPress={()=> {
                 getUserInfo(item.customerId.toString())
               }}
+              
             />
           )}
           keyExtractor={item => item.id}
+          refreshControl={
+            <RefreshControl refreshing={refreshControl} onRefresh={() => {
+              loadData()
+              
+              setTimeout(() => {
+                setRefreshControl(false);
+              }, 500)
+
+            }} />
+          }
         />
       </View>
       )}
       
       {!isOnActiveRequest && (
-        <View style={{flex: 1, paddingTop: 36}}>
+        <View style={{flex: 1}}>
         <View>
           <TouchableOpacity onPress={showFlatListNoProcessing}>
                         <Text             style={{
@@ -959,6 +973,16 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
             />
           )}
           keyExtractor={item => item.id}
+          refreshControl={
+            <RefreshControl refreshing={refreshControl} onRefresh={() => {
+              loadData()
+              
+              setTimeout(() => {
+                setRefreshControl(false);
+              }, 500)
+
+            }} />
+          }
         />
       </View>
       )}
@@ -1031,10 +1055,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   flex_top_1: {
-    flex: 0.5,
+  
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: -32,
+    
+    height:72
   },
   btnFavorites: {
     borderRadius: 15,

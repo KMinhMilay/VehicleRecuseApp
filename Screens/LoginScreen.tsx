@@ -54,6 +54,7 @@ import { UserContext } from '../Contexts/UserContext';
               (tx, results) => {
                 if (results.rows.length > 0) {
                   const userData = results.rows.item(0);
+                  console.log(userData);
                   updateUser(userData)
                   navigation.navigate('HomeScreen');
                 }
