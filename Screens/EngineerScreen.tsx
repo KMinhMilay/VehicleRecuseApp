@@ -52,6 +52,8 @@ type CustomerInfo = {
   id: string;
   fullname: string;
   phone_number: string;
+  xLocation: any;
+  yLocation: any;
 }
 type ItemProps_Processing = {
   id: string;
@@ -444,7 +446,13 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
           onPress: () => {
             setCustomerInfo(undefined)
           }
-        }]
+        },
+      {
+        text: 'Vị trí',
+        onPress: () => {
+          openCurrentLocationOnMap(customerInfo?.xLocation, customerInfo?.yLocation)
+        }
+      }]
       )
     }
   },[customerInfo])
@@ -461,7 +469,14 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
           [id],
           (tx, results) => {
             if (results.rows.length > 0) {
-              setCustomerInfo(results.rows.item(0))
+              const data = {
+                id: results.rows.item(0).id,
+                fullname: results.rows.item(0).fullname,
+                phone_number: results.rows.item(0).phone_number,
+                xLocation: results.rows.item(0).current_longitude,
+                yLocation: results.rows.item(0).current_latitude
+              }
+              setCustomerInfo(data)
             }
           }
         )
@@ -767,7 +782,7 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
     }
   }
 
-  const openCurrentLocationOnMap = () => {
+  const openCurrentLocationOnMap = (x: any, y: any) => {
     openMap({ latitude: userData.current_latitude, longitude: userData.current_longitude })
     // console.log(userData)
   }
@@ -886,7 +901,7 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.btnOrderUnselected, orderingType == "byStatus" && styles.btnSelected]}
-        onPress={() => openCurrentLocationOnMap()}>
+        onPress={() => openCurrentLocationOnMap(userData.current_latitude, userData.current_longitude)}>
           <Text
             style={[styles.textUnselected]}>
             MỞ VỊ TRÍ CỦA BẠN TRÊN BẢN ĐỒ
