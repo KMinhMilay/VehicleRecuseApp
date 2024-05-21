@@ -43,7 +43,7 @@ const Tabs = () => {
         },
         tabBarHideOnKeyboard: true,
       }}>
-      <Tab.Screen
+      {!isEngineer && (<Tab.Screen
         name="CustomerScreen"
         component={CustomerScreen}
         options={{
@@ -76,7 +76,7 @@ const Tabs = () => {
             </View>
           ),
         }}
-      />
+      />)}
       {isEngineer && (<Tab.Screen
         name="EngineerScreen"
         component={EngineerScreen}
@@ -111,7 +111,7 @@ const Tabs = () => {
           ),
         }}
       />)}
-<Tab.Screen
+      <Tab.Screen
         name="TripListScreen"
         component={TripListScreen}
         options={{
