@@ -545,8 +545,18 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
                     [request.id],
                     (tx, results) => {
                       if (results.rowsAffected > 0){
-                        Alert.alert('Hủy chuyến thành công!');
-                        loadData();      
+                        Alert.alert(
+                          'Thông báo',
+                          'Hủy chuyến thành công!',
+                          [
+                            {
+                              text: 'Đóng',
+                              onPress: () => {
+                                checkActiveRequest();
+                                loadData();
+                              }
+                            }
+                          ]);    
                       }
                     }
                   )
@@ -580,9 +590,18 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
                     [userData.id, request.id],
                     (tx, results) => {
                       if (results.rowsAffected > 0){
-                        Alert.alert('Đã nhận chuyến thành công!');
-                        loadData();
-                        
+                        Alert.alert(
+                          'Thông báo',
+                          'Đã nhận chuyến thành công!',
+                          [
+                            {
+                              text: 'Đóng',
+                              onPress: () => {
+                                checkActiveRequest();
+                                loadData();
+                              }
+                            }
+                          ]);
                       }
                     }
                   )
