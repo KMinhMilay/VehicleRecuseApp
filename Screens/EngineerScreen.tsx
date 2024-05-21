@@ -461,7 +461,7 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
       setDateFilter(textDate.split('-').reverse().join('-'))
     }
   }, [textDate])
-  const getUserInfo = (id: any) => {
+  const getUserInfo = (id: any, xLocation: any, yLocation: any) => {
     try {
       db.transaction(tx => {
         tx.executeSql(
@@ -473,8 +473,8 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
                 id: results.rows.item(0).id,
                 fullname: results.rows.item(0).fullname,
                 phone_number: results.rows.item(0).phone_number,
-                xLocation: results.rows.item(0).current_longitude,
-                yLocation: results.rows.item(0).current_latitude
+                xLocation: xLocation,
+                yLocation: yLocation
               }
               setCustomerInfo(data)
             }
@@ -936,7 +936,7 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
               onPressDone={()=>updateRequestStatus(item, "Done")}
               onPressCancel={()=>updateRequestStatus(item, "Cancel")}
               onLongPress={()=> {
-                getUserInfo(item.customerId.toString())
+                getUserInfo(item.customerId.toString(), item.xLocation, item.yLocation)
               }}
               
             />
@@ -983,7 +983,7 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
               notes={item.notes}
               onPressAccept={()=>updateRequestStatus(item, "Accept")}
               onLongPress={()=>{
-                getUserInfo(item.customerId.toString())
+                getUserInfo(item.customerId.toString(), item.xLocation, item.yLocation)
               }}
             />
           )}
