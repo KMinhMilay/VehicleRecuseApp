@@ -39,3 +39,53 @@ export const getRequestById = async (idRequest) => {
     console.error('Có lỗi khi lấy thông tin:', error);
   }
 }
+
+
+export const getRequestFilter = async (idUser, dateFilter, vehicleFilter, orderingType) => {
+  try {
+    let query = "SELECT Requests.id, is_bookmarked_by_engineer, is_bookmarked_by_user, show_on_engineer, vehicle_name, customer_id, longitude, latitude, status, strftime('%d-%m-%Y', create_at) as create_at, engineer_id, notes from Requests INNER JOIN Vehicles on Requests.vehicle_id = Vehicles.id WHERE"
+    let params = []
+
+    query += " (customer_id = ? OR"
+    params.push(idUser)
+    query += " engineer_id = ?)"
+    params.push(idUser)
+
+    if (dateFilter) {
+      query += " AND create_at = ?"
+      params.push(dateFilter);
+    }
+    if (vehicleFilter) {
+      query += " AND vehicle_name = ?"
+      params.push(vehicleFilter);
+    }
+
+    if (orderingType === 'byDate') {
+      query += " ORDER by create_at DESC";
+    } else if (orderingType === 'byStatus') {
+      query += ` ORDER BY 
+        CASE status
+          WHEN 'Đang đợi thợ' THEN 1
+          WHEN 'Đã hủy' THEN 2
+          WHEN 'Đang thực hiện' THEN 3
+          WHEN 'Đã hoàn thành' THEN 4
+        END`;
+    }
+
+    console.log(query, params);
+
+    const results = await RequestModel.getRequestFilter(query, params);
+
+    const data = [];
+    for (let i = 0; i < results.rows.length; i++) {
+      const item = results.rows.item(i);
+      if (item.show_on_engineer || item.show_on_user) {
+        data.push(item);
+      }
+    }
+    return data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};

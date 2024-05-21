@@ -20,10 +20,12 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import AccountController from '../Controller/AccountController';
+import {getAccountById, updateAccount, updateAccountNoPassWord } from '../Controller/AccountController';
 import { UserContext } from '../Contexts/UserContext';
 
 function UserInfoScreen({navigation}: any): React.JSX.Element {
+  const { id } = useContext(UserContext)
+
   const {updateUser, clearUserData} = useContext(UserContext);
 
   const [check, setCheck] = useState(false);
@@ -45,25 +47,46 @@ function UserInfoScreen({navigation}: any): React.JSX.Element {
       Alert.alert('Thông báo', 'Vui lòng nhập đầy đủ và đúng thông tin');
       return;
     }
-    controller.updateAccount({
-      fullname: fullname,
-      phone_number: number_phone,
-      birthdate: birthdate,
-      email: email,
-      password: password,
-      id: 1, // Thay bằng id của người dùng đang đăng nhập
-    })
-      .then(success => {
-        if (success) {
-          console.log('Tài khoản đã được cập nhật thành công');
-          Alert.alert('Cập nhật thành công');
-        } else {
-          console.log('Không có tài khoản nào được cập nhật');
-        }
+    if (password !== "") {        // nếu mật khẩu không trống tức là có giá trị
+      updateAccount({
+        fullname: fullname,
+        phone_number: number_phone,
+        birthdate: birthdate,
+        email: email,
+        password: password,       //cập nhật password
+        id: id, // Thay bằng id của người dùng đang đăng nhập
       })
-      .catch(error => {
-        console.error('Có lỗi trong quá trình cập nhật', error);
-      });
+        .then(success => {
+          if (success) {
+            console.log('Tài khoản đã được cập nhật thành công');
+            Alert.alert('Cập nhật thành công');
+          } else {
+            console.log('Không có tài khoản nào được cập nhật');
+          }
+        })
+        .catch(error => {
+          console.error('Có lỗi trong quá trình cập nhật', error);
+        });
+    } else {
+      updateAccountNoPassWord({       //nếu mật khẩu để trống thì không cập nhật giá trị password
+        fullname: fullname,
+        phone_number: number_phone,
+        birthdate: birthdate,
+        email: email,
+        id: id, // Thay bằng id của người dùng đang đăng nhập
+      })
+        .then(success => {
+          if (success) {
+            console.log('Tài khoản đã được cập nhật thành công');
+            Alert.alert('Cập nhật thành công');
+          } else {
+            console.log('Không có tài khoản nào được cập nhật');
+          }
+        })
+        .catch(error => {
+          console.error('Có lỗi trong quá trình cập nhật', error);
+        });
+    }
   };
 
   const Logout = () => {
@@ -95,8 +118,6 @@ function UserInfoScreen({navigation}: any): React.JSX.Element {
   };
 
 
-  const controller = new AccountController('VehicleRescue')
-
   const [fullname, setFullname] = useState('')
   const [username, setUsername] = useState('')
   const [number_phone, setNumberPhone] = useState('')
@@ -110,19 +131,21 @@ function UserInfoScreen({navigation}: any): React.JSX.Element {
     loadInfoUser()
   }, []);
   
-  const loadInfoUser = () => {
-    controller.getAccountById(1) // Ngay đây sẽ thay thế bằng id của người đăng nhập vào
-      .then(account => {
+  const loadInfoUser = async () => {
+    try {
+      const account = await getAccountById(id);
+      if (account) {
         setFullname(account.fullname)
         setUsername(account.username)
         setNumberPhone(account.phone_number)
         setBirthday(account.birthdate)
         setEmail(account.email)
-        //setPassword(account.password)
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
+      } else {
+        console.log('No account found with the provided ID.');
+      }
+    } catch (error) {
+      console.error('Error fetching account details:', error);
+    }
   };
 
   const isValidEmail = (email: string) => {

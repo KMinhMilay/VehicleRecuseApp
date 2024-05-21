@@ -22,7 +22,7 @@ export const getRequestByIdUser = async (idUser) => {
         db.transaction(tx => {
             tx.executeSql(
                 query,
-                [idUser],
+                [idUser, idUser],
                 (tx, results) => {
                     let rows = results.rows;
                     let data = [];
@@ -85,3 +85,22 @@ export const getRequestById = async (idRequest) => {       //cái này là lấy
         });
     });
 }
+
+
+export const getRequestFilter = async (query, params) => {
+    const db = await getDBConnection();
+    return new Promise((resolve, reject) => {
+      db.transaction(tx => {
+        tx.executeSql(
+          query,
+          params,
+          (tx, results) => {
+            resolve(results);
+          },
+          (tx, error) => {
+            reject(error);
+          }
+        );
+      });
+    });
+  };
