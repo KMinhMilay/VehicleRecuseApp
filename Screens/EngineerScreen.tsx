@@ -783,7 +783,7 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
   }
 
   const openCurrentLocationOnMap = (x: any, y: any) => {
-    openMap({ latitude: userData.current_latitude, longitude: userData.current_longitude })
+    openMap({ latitude: y, longitude: x })
     // console.log(userData)
   }
 
@@ -901,7 +901,7 @@ function EngineerScreen({navigation}: any): React.JSX.Element {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.btnOrderUnselected, orderingType == "byStatus" && styles.btnSelected]}
-        onPress={() => openCurrentLocationOnMap(userData.current_latitude, userData.current_longitude)}>
+        onPress={() => openCurrentLocationOnMap(userData.current_longitude, userData.current_latitude)}>
           <Text
             style={[styles.textUnselected]}>
             MỞ VỊ TRÍ CỦA BẠN TRÊN BẢN ĐỒ
